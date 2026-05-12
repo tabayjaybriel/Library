@@ -1,0 +1,15 @@
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".datatable").forEach(table => {
+        new DataTable(table, {
+            responsive: true, // Makes the table responsive
+            layout: {
+                topStart: null,      // Remove default elements from top start
+                topEnd: null,        // Remove default elements from top end
+                bottomStart: "pageLength", // Page length selector on bottom left
+                bottomEnd: "info,paging"   // Info and pagination on bottom right
+            },
+        });
+    });
+});
+</script>

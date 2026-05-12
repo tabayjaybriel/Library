@@ -1,0 +1,102 @@
+{% block content %}
+<div class="analytics-card shadow-sm border-0 mb-4 ">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-people-fill me-2 text-primary"></i>User Activity Tracking
+        </h5>
+    </div>
+
+    <!-- Reuse the Filter Toolbar from Overview -->
+    <!-- <div class="p-4 border-bottom">
+        <form method="get" action="{{ url_for('analytics.user_activity') }}">
+            <div class="row g-3 align-items-end analytics-toolbar">
+                <div class="col-lg-5">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted">Start Date</label>
+                            <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted">End Date</label>
+                            <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="small fw-bold text-muted fw-bold me-3">Frequency:</label>
+                    <select name="resourceFilter" class="form-select">
+                        <option value="Daily" {% if current_filter=='Daily' %}selected{% endif %}>Daily</option>
+                        <option value="Monthly" {% if current_filter=='Monthly' %}selected{% endif %}>Monthly
+                        </option>
+                        <option value="Yearly" {% if current_filter=='Yearly' %}selected{% endif %}>Yearly</option>
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <button type="submit" class="btn btn-primary btn-submitdate w-100 fw-bold">Apply
+                        Filter</button>
+                </div>
+            </div>
+        </form>
+    </div> -->
+
+    <div class="container-fluid bg-light">
+
+        <main id="analytics-result-container">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="user_analyticActivity">
+                    <thead>
+                        <tr class="bg-light">
+                            <th class="ps-4"></th>
+                            <th>User Name</th>
+                            <th> Full Name</th>
+                            <th>Status</th>
+                            <th class="text-center fw-bold pe-4"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in user_list %}
+                        <tr>
+                            <td class="ps-4 text-muted align-text-left">{{ loop.index }}</td>
+                            <td>{{ row.user_userName }}</td>
+                            <td>{{ row.user_fullName }}</td>
+
+                            <td>
+                                {% if row.is_online == 1 %}
+                                <span class="badge bg-success">Online</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Offline</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="dropdown">
+
+                                    <button class="btn btn-light btn-sm rounded-circle" type="button"
+                                        data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                        <li><a class="dropdown-item" href="#"><i
+                                                    class="bi bi-info-circle me-2"></i>Details</a></li>
+                                        <li><a class="dropdown-item btn-user-activity-report"
+                                                href="{{ url_for('analytics.user_analyticReport', user_id=row.id) }}">
+                                                <i class="bi bi-file-earmark-pdf me-2"></i>Report</a></li>
+                                    </ul>
+                                </div>
+
+
+                            </td>
+
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">No user activity recorded for this
+                                period.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    {% endblock %}

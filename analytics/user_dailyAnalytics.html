@@ -1,0 +1,68 @@
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-graph-up-arrow me-2 text-success"></i>
+                    User Activity Report
+                </h5>
+                <!-- <div class="d-flex align-items-center">
+                    <span class="text-muted small fw-bold">Export Options:</span>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-success"
+                            onclick="exportTableToExcel('user_analyticActivity', 'user_activity_report')">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="exportTableToWord('user_analyticActivity')">
+                            <i class="bi bi-file-earmark-word me-1"></i> Word
+                        </button>
+                    </div>
+                </div> -->
+            </div>
+
+            <hr>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="user_analyticActivity">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Period</th>
+                                <th>Resource</th>
+                                <th>Action</th>
+                                <th>Title</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in daily_logs %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ log.activity_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                                <td>{{ log.resource_type }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if log.action == 'download' else 'info' }}">
+                                        {{ log.action|capitalize }}
+                                    </span>
+                                </td>
+                                <td>{{ log.title }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    No activity for this day
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

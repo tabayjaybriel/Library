@@ -1,0 +1,870 @@
+{% extends "header/base.html" %}
+
+{% block title %}Faculty Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Add some padding to the DataTables controls for better spacing */
+    .dt-layout-row {
+        padding: 0.5rem 0;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+    }
+
+    /* CMU Color Palette */
+    :root {
+        --cmu-maroon: #066b0b;
+        --cmu-gold: #FFC82E;
+        --cmu-light-bg: #f8f9fa;
+        --font-family: 'Inter', sans-serif;
+        --cmu-light-green: #73f798;
+    }
+
+    table.dataTable {
+        overflow: visible !important;
+    }
+
+
+
+    .dataTables_wrapper {
+        overflow: visible !important;
+    }
+
+    .dropdown-menu {
+        min-width: 140px;
+        font-size: 1rem;
+    }
+
+    .dropdown-item {
+        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dropdown-item:hover {
+        background-color: #dee2e6;
+    }
+
+
+    /* General Styling */
+    body {
+        font-family: var(--font-family);
+        background-color: var(--cmu-light-bg);
+        font-family: 12px;
+    }
+
+    /* Main Header & Title */
+    .dashboard-header {
+        color: var(--cmu-maroon);
+        font-weight: 800;
+        border-bottom: 3px solid var(--cmu-gold);
+        padding-bottom: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Status Cards */
+    .stat-card {
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        transition: transform 0.3s ease;
+        border-left: 5px solid var(--cmu-maroon);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-card .metric {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--cmu-maroon);
+    }
+
+    /* Table Styling */
+    .table-responsive {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+    }
+
+    .table thead th {
+
+
+        font-weight: 600;
+
+        vertical-align: middle;
+
+    }
+
+    .table tbody tr:hover {
+        background-color: #f0f3f6;
+    }
+
+    /* Action Button Styling */
+    .action-btn {
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .btn-primary {
+        background-color: var(--cmu-maroon);
+        border-color: var(--cmu-maroon);
+    }
+
+    .btn-primary:hover {
+        background-color: #520026;
+        /* Darker maroon */
+        border-color: #520026;
+    }
+
+    .btn-outline-primary {
+        color: var(--cmu-maroon);
+        border-color: var(--cmu-maroon);
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--cmu-maroon);
+        color: white;
+    }
+
+    /* Modal Headers */
+    .modal-header {
+        background-color: var(--cmu-maroon);
+        color: white;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    .flash-message {
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+
+    .flash-message:not(.show) {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    .search-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .search-wrapper .bi-search {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    .search-wrapper .form-control {
+        padding-left: 2.75rem;
+        border-radius: 50px;
+        border: 1px solid #dee2e6;
+        height: 40px;
+        transition: all 0.2s;
+    }
+
+    .search-wrapper .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.1);
+        border-color: var(--cmu-maroon);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+        flex-wrap: wrap;
+        /* margin-bottom: 15px; */
+    }
+</style>
+
+<div class="fluid-container py-4">
+    <!-- Welcome Header -->
+    <!-- <div class=" d-flex justify-content-center align-items-center mb-4 mt-5">
+        <div>
+            <h1 class="dashboard-header p-0 mb-1"><i class="bi bi-speedometer2 me-2"></i>My Dashboard</h1>
+
+        </div>
+
+    </div> -->
+
+    <div class="card border-0 mb-4  bg-dark text-white overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #014d24 0%, #146c43 100%); 
+            border-radius: 0 0 1rem 1rem;
+            border-bottom: 4px solid rgba(255, 255, 255, 0.2); /* Adjust color/thickness here */">
+
+        <div class="card-body p-2 text-center position-relative">
+            <div class="position-relative z-1 mt-5 mb-2">
+                <h1 class="display-5 fw-bold mb-0">Research Management Portal</h1>
+                <p class="lead opacity-75 text-warning fw-bold mb-0">Central Mindanao University Repository Information
+                    System</p>
+                <p class="fs-sm text-warning fw-bold">University Town, Musuan, Maramag, Bukidnon, Region X, Philippines,
+                    8710</p>
+            </div>
+
+            <!-- Decorative Icon Background -->
+            <i class="bi bi-mortarboard position-absolute opacity-10"
+                style="font-size: 8rem; right: 2rem; top: 60%; transform: translateY(-50%); pointer-events: none;"></i>
+        </div>
+    </div>
+
+
+    <!-- Statistic Cards -->
+
+    <div class="align-items-center mt-5">
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-journal-bookmark-fill display-6 mb-3 text-warning"></i>
+                        <div class="metric">{{ listofSubjectYear|length }}</div>
+                        <p class="text-uppercase fw-bold text-muted mb-0">Total Subjects Handled</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill display-6 mb-3 text-info"></i>
+                        <div class="metric">{{ count|default(0) }}</div>
+                        <p class="text-uppercase fw-bold text-muted mb-0">Enrolled Students</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar-check-fill display-6 mb-3 text-success"></i>
+                        <div class="metric">{{ academic_years[0] if academic_years else 'N/A' }}</div>
+                        <p class="text-uppercase fw-bold text-muted mb-0">Current Academic Year</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- search wrapper input Gamit sa pang search-->
+
+
+    <div class="search-wrapper d-flex justify-content-end align-items-center mb-3">
+
+        <input type="text" class="form-control " id="searchSubject"
+            placeholder="Search by subject code, title or keywords..." style="max-width: 400px;">
+    </div>
+
+
+
+
+    <div class="col-12 col-md-12 bg-secondary-subtle border border-subtle rounded-3 mb-2 p-2">
+        <div class="section-header d-flex justify-content-between align-items-center mb-2">
+
+
+            <div class="d-flex gap-2 flex-grow-1 justify-content-md-end align-items-center">
+                <!-- Academic Year Filter Dropdown -->
+                <form id="filterForm" method="GET" action="{{ url_for('auth.facultyPortal') }}">
+                    <div class="input-group">
+                        <label class="input-group-text" for="academicYearFilter"><i class="bi bi-calendar3"></i></label>
+                        <select class="form-select" id="academicYearFilter" name="filter_acad_year"
+                            onchange="this.form.submit()">
+                            <option value="">All Academic Years</option>
+                            {% for year in academic_years %}
+                            <option value="{{ year }}" {% if year==selected_acad_year %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+
+                <button
+                    class="btn btn-add-subject px-4 h-100 py-2 d-flex align-items-center shadow-sm bg-success text-white"
+                    data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                    <i class="bi bi-plus-lg me-2"></i> <span>Add Subject</span>
+                </button>
+            </div>
+
+        </div>
+
+
+
+
+
+        <!-- Subjects Table -->
+
+        <div id="facultyContainer" class="container-fluid  py-2 border-1 rounded-0 bg-white">
+            <!-- This is where the subjects table will be loaded via AJAX -->
+
+            <!-- <div class="rounded-3 bg-subtle opacity-75 shadow-sm py-4 mt-4 mb-2">
+                <div class=" d-flex justify-content-between align-items-center mb-3"> -->
+            <!-- this will contain the faculty-specific content chart where it show the percentage of students
+           who pass the thesis every semester of the subject being handle by the faculty -->
+
+            <!-- <div style="max-height: 300px; position: relative;">
+                        <canvas id="studentPassRateChart"></canvas>
+                    </div>
+
+                </div>
+            </div> -->
+
+
+
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show d-flex align-items-center flash-message"
+                role="alert">
+                {% if category == 'success' %}
+                <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                {% elif category == 'danger' %}
+                <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
+                {% elif category == 'warning' %}
+                <i class="bi bi-exclamation-circle-fill me-2 text-warning"></i>
+                {% elif category == 'info' %}
+                <i class="bi bi-info-circle-fill me-2 text-info"></i>
+                {% else %}
+                <i class="bi bi-bell-fill me-2"></i>
+                {% endif %}
+                <div>{{ message }}</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+
+
+            <div class="p-2 mt-2 mb-2">
+                <!-- Subjects Table -->
+                <div class="dashboard-header d-flex justify-content-between align-items-center mb-3">
+
+                    <h2 class="h4 m-0 fw-bold" style="color: var(--cmu-maroon);">
+                        <i class="bi bi-journal-bookmark-fill me-2"></i>My Subjects
+                    </h2>
+                    <!-- <h2 class="h4 m-0" style="color: var(--cmu-maroon);">My Subjects</h2> -->
+
+
+                    <!-- Add Subject Button -->
+                    <!-- <div class="d-flex justify-content-end mb-3 col-12 col-md-12"> -->
+                    <!-- <button class="btn btn-success action-btn px-3 py-2" data-bs-toggle="modal"
+                        data-bs-target="#addSubjectModal">
+                        <i class="bi  bi-journal-plus me-2"></i>Add Subject
+                    </button> -->
+
+                    <!-- </div> -->
+
+                    <!-- Academic Year Filter Dropdown -->
+                    <!-- <form id="filterForm" method="GET" action="{{ url_for('auth.facultyPortal') }}">
+                <div class="input-group">
+                    <label class="input-group-text" for="academicYearFilter"><i class="bi bi-calendar3"></i></label>
+                    <select class="form-select" id="academicYearFilter" name="filter_acad_year"
+                        onchange="this.form.submit()">
+                        <option value="">All Academic Years</option>
+                        {% for year in academic_years %}
+                        <option value="{{ year }}" {% if year==selected_acad_year %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form> -->
+
+                </div>
+
+
+                <!-- Add Subject Button -->
+                <!-- <div class="d-flex justify-content-end mb-3 col-12 col-md-12"> -->
+
+                <!-- <button class="btn btn-success action-btn px-3 py-2" data-bs-toggle="modal"
+                data-bs-target="#addSubjectModal">
+                <i class="bi  bi-journal-plus me-2"></i>Add Subject
+            </button> -->
+
+                <!-- Academic Year Filter Dropdown -->
+                <!-- <form id="filterForm" method="GET" action="{{ url_for('auth.facultyPortal') }}">
+                        <div class="input-group">
+                            <label class="input-group-text" for="academicYearFilter"><i
+                                    class="bi bi-calendar3"></i></label>
+                            <select class="form-select" id="academicYearFilter" name="filter_acad_year"
+                                onchange="this.form.submit()">
+                                <option value="">Filter Academic Years</option>
+                                {% for year in academic_years %}
+                                <option value="{{ year }}" {% if year==selected_acad_year %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form> -->
+                <!-- </div> -->
+
+                <!-- Table -->
+                <!-- <div class="table-responsive border-0 "> -->
+                <table id="faculty_subjectList" class="table table-hover table-sm align-middle mb-0 text-dark">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th>#</th>
+                            <th class="text-center">Academic Year</th>
+                            <th class="text-center">Subject Code</th>
+                            <th class="text-center">Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in listofSubjectYear %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="text-center">{{ subject.acad_year }}</td>
+                            <td>{{ subject.subjectID }}</td>
+                            <td>{{ subject.courseDescription }}</td>
+
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <!-- Dropdown toggle button -->
+                                    <button class="border-0 dropdown-toggle bg-transparent" type="button"
+                                        id="subjectActions{{ subject.id }}" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+
+                                    <!-- Dropdown menu -->
+                                    <ul class="dropdown-menu" aria-labelledby="subjectActions{{ subject.id }}">
+                                        <li>
+                                            <a class="dropdown-item view-students-link"
+                                                href="{{ url_for('faculty.studentListPersubject', subject_id=subject.id) }}">
+                                                <i class="bi bi-search"></i> View Students
+                                            </a>
+                                        </li>
+                                        <li>
+
+                                        </li>
+                                        <!-- href="{{ url_for('faculty.editSubject', subject_id=subject.id) }}"> -->
+                                        <li>
+                                            <a href="" class="dropdown-item fw-semibold" data-bs-toggle="modal"
+                                                data-bs-target="#editSubjectModal" data-bs-id="{{ subject.id }}">
+
+                                                <i class="bi bi-pencil-square me-2"></i> Edit Subject
+                                            </a>
+                                        </li>
+                                        <li>
+
+                                        </li>
+
+                                        <li>
+                                            <!-- <form method="POST"
+                                        action="{{ url_for('faculty.deleteSubject', subject_id=subject.id) }}"
+                                        onsubmit="return confirm('Are you sure you want to delete this subject?');">
+                                        <button type="submit" class="dropdown-item  fw-semibold"
+                                        data-bs-toggle= "modal" data-bs-target="#deleteSubjectModal"
+                                        data-bs-id="{{ subject.id }}">
+                                            <i class="bi bi-trash-fill me-2"></i> Delete Subject
+                                        </button>
+                                    </form> -->
+
+                                            <button type="submit" class="dropdown-item  fw-semibold btn-delete-subject"
+                                                data-bs-toggle="modal" data-bs-target="#deleteSubjectModal"
+                                                data-bs-id="{{ subject.id }}">
+                                                <i class="bi bi-trash-fill me-2"></i> Delete Subject
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted p-4">You have not added any subjects yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
+
+    <!--
+==============================================================================================
+MODAL for better appearance 
+==============================================================================================
+-->
+
+    <!-- ✅ Edit Subject Modal -->
+    <div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editSubjectModalLabel"><i class="bi bi-pencil-square-fill me-2"></i>Edit
+                        Subject</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editSubjectForm" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editAcademicYear" class="form-label">Academic Year</label>
+                            <select class="form-select" id="editAcademicYear" name="academicYear" required>
+                                {% for year in modal_academic_years %}
+                                <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSubjectCode" class="form-label">Subject Code</label>
+                            <input type="text" class="form-control" id="editSubjectCode" name="subjectCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Course Description</label>
+                            <input type="text" class="form-control" id="editDescription" name="description" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> Cancel</button>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-floppy"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Delete Subject Modal -->
+    <div class="modal fade" id="deleteSubjectModal" tabindex="-1" aria-labelledby="deleteSubjectModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteSubjectModalLabel"><i class="bi bi-trash-fill me-2"></i>Delete
+                        Subject</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="deleteSubjectForm" method="post">
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the subject <strong id="deleteSubjectName"></strong>?</p>
+                        <p class="text-danger text-center"><small>This action cannot be undone.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Add Subject Modal -->
+    <div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectModalLabel"
+        aria-hidden="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="addSubjectModalLabel"><i class="bi bi-plus-circle-fill me-2"></i>Add New
+                        Subject</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('listofthesis.addSubject') }}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="academicYear" class="form-label">Academic Year</label>
+                            <select class="form-select" id="academicYear" name="academicYear" required>
+                                {% for year in modal_academic_years %}
+                                <option value="{{ year }}" {% if loop.first %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subjectcode" class="form-label">Subject Code</label>
+                            <input type="text" class="form-control" id="subjectcode" name="subjectcode"
+                                placeholder="e.g., CS 101" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Course Description</label>
+                            <input type="text" class="form-control" id="description" name="description"
+                                placeholder="e.g., Introduction to Programming" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> Cancel</button> -->
+                        <button type="submit" class="btn btn-success"><i class="bi bi-floppy"></i> Save Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- DataTables requires jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS for Bootstrap 5 -->
+    <script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+
+    <script>
+        // Use jQuery's document ready function to ensure the DOM is fully loaded
+        $(document).ready(function () {
+            var table; // Declare table variable
+            // Initialize DataTables on the table with the ID 'faculty_subjectList'
+            if (!$.fn.DataTable.isDataTable('#faculty_subjectList')) {
+                table = $('#faculty_subjectList').DataTable({
+                    "pagingType": "simple_numbers", // Example: "Previous", "1", "2", "Next"
+                    "language": {
+                        "search": "Search Subjects:",
+                        "lengthMenu": "Show _MENU_ entries",
+                        "info": "Showing _START_ to _END_ of _TOTAL_ subjects",
+                        "infoEmpty": "No subjects to show",
+                        "infoFiltered": "(filtered from _MAX_ total subjects)"
+                    },
+                    // This improves the layout of the controls (search, pagination, etc.)
+                    layout: {
+                        topStart: 'pageLength',
+                        topEnd: 'search',
+                        bottomStart: 'info',
+                        bottomEnd: 'paging'
+                    }
+
+                });
+            } else {
+                table = $('#faculty_subjectList').DataTable();
+            }
+
+            // Function to initialize dropdowns
+            function initializeDropdowns() {
+                var dropdownTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'))
+                dropdownTriggerList.map(function (el) {
+                    return new bootstrap.Dropdown(el)
+                });
+            }
+
+            // Initialize dropdowns on page load
+            initializeDropdowns();
+
+            // Reinitialize dropdowns when table is redrawn
+            table.on('draw', function () {
+                initializeDropdowns();
+            });
+
+        });
+
+        //edit subject modal population
+        $(document).ready(function () {
+            var editSubjectModal = document.getElementById('editSubjectModal');
+
+            editSubjectModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // The link that triggered the modal
+
+                // ✅ Get the subject ID directly from the data attribute
+                var subjectId = button.getAttribute('data-bs-id');
+
+                // ✅ Find the closest row to get the text values
+                var subjectRow = button.closest('tr');
+                var acadYear = subjectRow.cells[1].innerText.trim();
+                var subjectCode = subjectRow.cells[2].innerText.trim();
+                var description = subjectRow.cells[3].innerText.trim();
+
+                // ✅ Fill modal fields
+                var modal = this;
+                modal.querySelector('#editAcademicYear').value = acadYear;
+                modal.querySelector('#editSubjectCode').value = subjectCode;
+                modal.querySelector('#editDescription').value = description;
+
+                // ✅ Set the form’s action dynamically
+                var form = modal.querySelector('#editSubjectForm');
+                form.action = "{{ url_for('faculty.editSubject', subject_id=0) }}".replace('0', subjectId);
+            });
+        });
+
+        //delete subject modal population
+        $(document).ready(function () {
+            var deleteSubjectModal = document.getElementById('deleteSubjectModal');
+
+            deleteSubjectModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // The button that triggered the modal
+
+                // ✅ Get the subject ID directly from the data attribute
+                var subjectId = button.getAttribute('data-bs-id');
+
+                // ✅ Find the closest row to get the subject code
+                var subjectRow = button.closest('tr');
+                var subjectCode = subjectRow.cells[2].innerText.trim();
+
+                // ✅ Fill modal fields
+                var modal = this;
+                modal.querySelector('#deleteSubjectName').textContent = subjectCode;
+
+                // ✅ Set the form’s action dynamically
+                var form = modal.querySelector('#deleteSubjectForm');
+                form.action = "{{ url_for('faculty.deleteSubject', subject_id=0) }}".replace('0', subjectId);
+            });
+        });
+
+
+        // Auto-dismiss flash messages after 3 seconds
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashMessages = document.querySelectorAll(".flash-message");
+            flashMessages.forEach(msg => {
+                setTimeout(() => {
+                    msg.classList.remove("show"); // triggers Bootstrap fade-out
+                    setTimeout(() => msg.remove(), 500); // remove from DOM after fade
+                }, 3000); // 3 seconds
+            });
+        });
+
+        // AJAX load for dropdown list anchors
+        $(document).on('click', '.view-students-link', function (e) {
+            e.preventDefault();
+            const url = $(this).attr('href');
+            const $container = $('#facultyContainer');
+
+            // Show loading spinner while fetching data
+            $container.html('<div class="text-center py-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading students...</p></div>');
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function (response) {
+                    // Update the container with the partial HTML
+                    $container.html(response);
+                    // Re-initialize the specific DataTables and event logic for student list
+                    initStudentInSubjectTable();
+                },
+                error: function (err) {
+                    $container.html('<div class="alert alert-danger">Failed to load student list. Please try again.</div>');
+                    console.error('AJAX Error:', err);
+                }
+            });
+        });
+
+        function initStudentInSubjectTable() {
+            if (!$.fn.DataTable) {
+                console.warn('DataTables not loaded');
+                return;
+            }
+
+            var $table = $('#studentinSubject');
+            if (!$table.length) {
+                console.warn('studentinSubject table not found');
+                return;
+            }
+
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable($table)) {
+                $table.DataTable().destroy();
+            }
+
+            // Clear any existing DataTable wrapper
+            $table.removeClass('dataTable').css('width', '');
+
+            try {
+                var table = $table.DataTable({
+                    responsive: true,
+                    language: {
+                        search: "Search Students:",
+                        lengthMenu: "Show _MENU_ entries"
+                    },
+                    initComplete: function () {
+                        console.log('DataTable initialized successfully');
+                    }
+                });
+
+                // Intercept Approval and Denial form submissions
+                $('#approveForm, #denyForm').off('submit').on('submit', function (e) {
+                    e.preventDefault();
+                    const $form = $(this);
+                    const url = $form.attr('action');
+                    const $modal = $form.closest('.modal');
+
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function (response) {
+                            // Hide modal using Bootstrap instance
+                            const modalInstance = bootstrap.Modal.getInstance($modal[0]);
+                            if (modalInstance) modalInstance.hide();
+
+                            // Refresh the container with updated data
+                            const reloadUrl = "{{ url_for('faculty.studentListPersubject', subject_id=0) }}".replace('0', response.subject_id);
+                            loadStudentList(reloadUrl);
+
+                            // Optional: Show a quick toast or alert about the success
+                        },
+                        error: function (err) {
+                            alert('An error occurred while processing your request.');
+                            console.error('Form Submit Error:', err);
+                        }
+                    });
+                });
+
+                // Status filter
+                $('#statusFilter').off('change.ajax').on('change.ajax', function () {
+                    var status = $(this).val();
+                    table.column(3).search(status ? '^' + status : '', true, false).draw();
+                });
+
+                // Excel export
+                $('#exportToExcelBtn').off('click.ajax').on('click.ajax', function () {
+                    table.button().add(0, {
+                        extend: 'excelHtml5',
+                        exportOptions: { columns: [0, 1, 2, 3] },
+                        title: 'Student Submitted Thesis Titles - ' + ($('#subjectCourseDescription strong').text() || 'Subject')
+                    });
+                    table.button(0).trigger();
+                    table.button(0).remove();
+                });
+
+                // Print
+                $('#printBtn').off('click.ajax').on('click.ajax', function () {
+                    table.button().add(0, {
+                        extend: 'print',
+                        exportOptions: { columns: [0, 1, 2, 3] },
+                        title: 'Student Submitted Thesis Titles - ' + ($('#subjectCourseDescription strong').text() || 'Subject')
+                    });
+                    table.button(0).trigger();
+                    table.button(0).remove();
+                });
+
+                // Modal triggers
+                $('#approveThesisModal').off('show.bs.modal.ajax').on('show.bs.modal.ajax', function (event) {
+                    var button = $(event.relatedTarget);
+                    var thesisId = button.data('thesis-id');
+                    var thesisTitle = button.data('thesis-title');
+                    $(this).find('#approveId').text(thesisId);
+                    $(this).find('#approveTitle').text(thesisTitle);
+                    $(this).find('#approveThesisIdInput').val(thesisId);
+                });
+
+                $('#denyThesisModal').off('show.bs.modal.ajax').on('show.bs.modal.ajax', function (event) {
+                    var button = $(event.relatedTarget);
+                    var thesisId = button.data('thesis-id');
+                    var thesisTitle = button.data('thesis-title');
+                    $(this).find('#denyId').text(thesisId);
+                    $(this).find('#denyTitle').text(thesisTitle);
+                    $(this).find('#denyThesisIdInput').val(thesisId);
+                });
+
+            } catch (error) {
+                console.error('Error initializing DataTable:', error);
+            }
+        }
+
+
+    </script>
+    {% endblock %}

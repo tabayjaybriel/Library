@@ -1,0 +1,1065 @@
+{% extends 'header/base.html' %}
+{% block content%}
+<style>
+    /* Premium Segmented Navigation Styling */
+    .action-navbar {
+        background: transparent;
+        padding: 0.5rem 0;
+    }
+
+    .nav-segment-container {
+        background-color: #f1f5f9;
+        /* Soft slate gray background */
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .nav-segment-container .nav-item {
+        flex: 0 1 auto;
+    }
+
+
+    .cmu-action-btn {
+        color: #64748b !important;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.6rem 1.25rem !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease;
+        border: none !important;
+    }
+
+    .cmu-action-btn:hover {
+        color: #1e293b !important;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .cmu-action-btn.active {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Integrated Search Bar */
+    .nav-search-wrapper {
+        flex-grow: 1;
+        /* This forces the wrapper to take up remaining space */
+        margin-left: 1.5rem;
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        /* This pushes the input group inside to the right */
+    }
+
+    .search-input-group {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 2px 12px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 400px;
+        /* Optional: prevents the search bar from becoming too wide */
+    }
+
+    .search-input-group:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-input-group input {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent;
+        font-size: 0.875rem;
+        padding: 8px 10px;
+        color: #1e293b;
+    }
+
+    .search-input-group .bi-search {
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+
+    @media (max-width: 992px) {
+        .nav-segment-container {
+            flex-wrap: wrap;
+        }
+
+        .nav-search-wrapper {
+            margin-left: 0;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .search-input-group {
+            max-width: 100%;
+        }
+    }
+
+    /* Fix dropdown z-index for DataTables */
+    .dropdown-menu {
+        z-index: 1050;
+    }
+</style>
+
+
+
+<div class="container-fluid py-4 my-4">
+
+    <!-- Masthead Section -->
+
+
+    <div class="card border-0 mb-4 bg-dark text-white overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #014d24 0%, #146c43 100%); 
+            border-radius: 0 0 1rem 1rem;
+            border-bottom: 4px solid rgba(255, 255, 255, 0.2); /* Adjust color/thickness here */">
+
+        <div class="card-body p-2 text-center position-relative">
+            <div class="position-relative z-1 mt-2">
+                <h1 class="display-5 fw-bold mb-0">Research Management Portal</h1>
+                <p class="lead opacity-75 text-warning">Central Mindanao University Repository Information System</p>
+                <p class="fs-sm mt-3 text-warning">University Town, Musuan, Maramag, Bukidnon, Region X, Philippines, 8710</p>
+            </div>
+
+            <!-- Decorative Icon Background -->
+            <i class="bi bi-mortarboard position-absolute opacity-10"
+                style="font-size: 10rem; right: 2rem; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+        </div>
+    </div>
+
+
+
+    <!-- Statistics Cards Row -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4 mb-4">
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class=" stat-icon me-3">
+                        <i class=" bi bi-collection text-primary"></i>
+                    </div>
+                    <div class="text-start">
+                        <p class="text-uppercase fw-bold text-muted mb-0 small">Total Resources</p>
+                        <div class="metric fw-bold">{{ total_resources|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-3">
+                        <i class="bi bi-eye text-info"></i>
+                    </div>
+                    <div class="text-start">
+                        <p class="text-uppercase fw-bold text-muted mb-0 small">Total Views</p>
+                        <div class="metric fw-bold">{{ total_views|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-3">
+                        <i class="bi bi-cloud-arrow-down-fill text-success"></i>
+                    </div>
+                    <div class="text-start ">
+                        <p class="text-uppercase fw-bold text-muted mb-0 small">Total Downloads</p>
+                        <div class="metric fw-bold">{{ total_downloads|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-3">
+                        <i class="bi bi-journal-text text-warning"></i>
+                    </div>
+                    <div class="text-start">
+                        <p class="text-uppercase fw-bold text-muted mb-0 small">E-Journals</p>
+                        <div class="metric fw-bold">{{ countEjournals|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-3">
+                        <i class="bi bi-book text-danger"></i>
+                    </div>
+                    <div class="text-start">
+                        <p class="text-uppercase fw-bold text-muted mb-0 small">E-Books</p>
+                        <div class="metric">{{ countEbooks|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- NAV BAR-->
+
+    <div class="mb-2">
+        <nav class="row action-navbar mb-4 mt-3">
+            <div class="col-12">
+                <div class="nav-segment-container px-3">
+                    <div class="d-flex align-items-center flex-wrap flex-lg-nowrap">
+
+                        <!-- Segmented Control Links -->
+                        <ul class="nav nav-pills">
+                            <li class="nav-item">
+                                <a href="{{ url_for('auth.EresourcesPortal') }}" class="nav-link cmu-action-btn active">
+                                    <i class="bi bi-grid-1x2 me-2"></i>Overview
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('eresources.uploadResources') }}"
+                                    class="nav-link btn-addEresources cmu-action-btn"
+                                    data-url="{{ url_for('eresources.uploadResources') }}">
+                                    <i class="bi bi-cloud-arrow-up me-2"></i>E-Resources
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('eresources.eresources_List') }}" class="nav-link cmu-action-btn"
+                                    data-url="{{ url_for('eresources.eresources_List') }}">
+                                    <i class="bi bi-list-ul me-2"></i>List
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('eresources.report_eresource') }}" class="nav-link cmu-action-btn"
+                                    data-url="{{ url_for('eresources.report_eresource') }}">
+                                    <i class="bi bi-bar-chart-line me-2"></i>Reports
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Search Field - Wrapper now has flex-grow to push to the end -->
+                        <div class="nav-search-wrapper">
+                            <div class="search-input-group shadow-sm">
+                                <i class="bi bi-search"></i>
+                                <input type="text" class="form-control" id="search-input"
+                                    placeholder="Quick find by title, author, or keyword...">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+
+    <div class="mb-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-------------------------------------------------------- 
+                        
+                    Main Content Area 
+    --------------------------------------------------------->
+
+    <div class="border border-subtle bg-body-secondary">
+
+        <!-- <div class=" text-center border-bottom">
+            <h5 class="fw-bold text-dark display-6 mb-1">E-Resources</h5>
+            <p class="text-muted small text-uppercase letter-spacing-1">Catalog Management</p>
+
+        </div> -->
+    </div>
+
+    <div id="ajax-page-content" class="bg-white bg-body-secondary p-2">
+
+        <div class="container-fluid mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small fw-bold uppercase">Export Options:</span>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-success"
+                        onclick="exportTableToExcel('MonthlyAnalytics', 'usage_report')">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                        onclick="exportTableToWord('MonthlyAnalytics')">
+                        <i class="bi bi-file-earmark-word me-1"></i> Word
+                    </button>
+                    <!-- <button type="button" class="btn btn-sm btn-outline-danger" onclick="window.print()">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i> PDF / Print
+                                </button> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid rounded-3 border border-subtle bg-white">
+
+            <div id="analytics-result-container">
+
+                <div id="eresources-main-content">
+
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <p class="text-muted small fw-bold uppercase me-2">Filter by Date:</p>
+                        <input type="text" id="startDate" class="form-control mb-3" style="width: 200px;"
+                            placeholder="Start Date" onfocus="(this.type='date')"
+                            onblur="(this.value ? this.type='date' : this.type='text')">
+
+                        <input type="text" id="endDate" class="form-control mb-3 ms-2" style="width: 200px;"
+                            placeholder="End Date" onfocus="(this.type='date')"
+                            onblur="(this.value ? this.type='date' : this.type='text')">
+
+                        <button id="filterButton" class="btn btn-primary ms-2 mb-3">
+                            <i class="bi bi-funnel me-1"></i> Apply Filter
+                        </button>
+                    </div>
+
+
+
+                    <!-- chart ni xa didto na sa script makita-->
+                    <div class="card p-3 shadow-sm">
+                        <canvas id="eresourceChart" style="height: 300px;"></canvas>
+                    </div>
+
+                    <script>
+                        window.chartData = {{ chart_data|tojson }};
+                    </script>
+
+
+                    <div class="row g-4 mb-4 mt-2">
+
+                        <!-- Top 5 Most Viewed -->
+                        <div class="col-lg-6">
+                            <div class="card   h-100 overflow-hidden">
+                                <div class="card-header bg-white border-bottom p-3">
+                                    <p class="card-title text-uppercase fw-bold text-muted mb-0 small letter-spacing-1">
+                                        <i class="bi bi-eye-fill text-primary me-2"></i> Top 5 Most Viewed
+                                    </p>
+                                </div>
+                                <div class="card-body p-2">
+                                    <table class="table table-hover align-middle mb-0" id="table_eresourcesTopViews">
+                                        <thead class="bg-success text-white">
+                                            <tr>
+                                                <th class="ps-4 py-2" style="width: 50px;">#</th>
+                                                <th class="py-2">Title</th>
+                                                <th class="pe-4 py-2 text-end">Views</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            {% for top_viewed in topViewsEresources %}
+                                            <tr>
+                                                <td class="ps-4 text-muted fw-bold small">{{ loop.index }}</td>
+                                                <td class="fw-semibold text-dark">{{ top_viewed.title }}</td>
+                                                <td class="pe-4 text-end">
+                                                    <span
+                                                        class="badge bg-primary-subtle text-primary rounded-pill px-3">{{
+                                                        top_viewed.views }}</span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top 5 Most Downloaded -->
+                        <div class="col-lg-6">
+                            <div class="card h-100 overflow-hidden">
+                                <div class="card-header bg-white border-bottom p-3">
+                                    <p class="card-title text-uppercase fw-bold text-muted mb-0 small letter-spacing-1">
+                                        <i class="bi bi-cloud-download-fill text-success me-2"></i> Top 5 Most
+                                        Downloaded
+                                    </p>
+                                </div>
+                                <div class="card-body p-2">
+                                    <table class="table table-hover align-middle mb-0" id="table_eresourceTopDownloads">
+                                        <thead class="bg-success text-white">
+                                            <tr>
+                                                <th class="ps-4 py-2" style="width: 50px;">#</th>
+                                                <th class="py-2">Title</th>
+                                                <th class="pe-4 py-2 text-end">Downloads</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for top_downloaded in topDownloadsEresources %}
+                                            <tr>
+                                                <td class="ps-4 text-muted fw-bold small">{{ loop.index }}</td>
+                                                <td class="fw-semibold text-dark">{{ top_downloaded.title }}</td>
+                                                <td class="pe-4 text-end">
+                                                    <span
+                                                        class="badge bg-success-subtle text-success rounded-pill px-3">{{
+                                                        top_downloaded.downloads }}</span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit
+                    E-Resource</h5>
+            </div>
+            <div class="modal-body">
+                <form id="editResourceForm" method="POST" action="">
+                    <!-- Section: Core Metadata -->
+                    <div class="mb-4 p-3 border rounded shadow-sm">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">Core
+                            Metadata</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="edit_title" class="form-label">Title of Work*</label>
+                                <input type="text" class="form-control" id="edit_title" name="title" required>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="edit_author" class="form-label">Author(s)*</label>
+                                <input type="text" class="form-control" id="edit_author" name="authors" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_year" class="form-label">Year of Publication</label>
+                                <input type="number" class="form-control" id="edit_year" name="year" min="1000"
+                                    max="2099">
+                            </div>
+                            <div class="col-12">
+                                <label for="edit_publisher" class="form-label">Publisher /
+                                    Source*</label>
+                                <input type="text" class="form-control" id="edit_publisher" name="publisher" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_doi" class="form-label">DOI / Persistent URL</label>
+                                <input type="text" class="form-control" id="edit_doi" name="doi">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_issn_isbn" class="form-label">ISSN / ISBN</label>
+                                <input type="text" class="form-control" id="edit_issn_isbn" name="issn_isbn">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Fields for E-Journal -->
+                    <div id="edit_ejournalFields" class="mb-4 p-3 border rounded">
+                        <p class="form-section-header">E-Journal Specific Details</p>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="edit_volume" class="form-label">Volume</label>
+                                <input type="number" class="form-control" id="edit_volume" name="volume">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_issue" class="form-label">Issue</label>
+                                <input type="number" class="form-control" id="edit_issue" name="issue">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_pages" class="form-label">Page Range</label>
+                                <input type="text" class="form-control" id="edit_pages" name="pages">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Discoverability and Staff Notes -->
+                    <div class="mb-4 p-3 border rounded">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">
+                            Discoverability & Staff Notes</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="edit_subject" class="form-label">Subject Headings
+                                    (Keywords)</label>
+                                <input type="text" class="form-control" id="edit_subject" name="subject">
+                            </div>
+                            <div class="col-12">
+                                <label for="edit_staffNotes" class="form-label">Staff Notes
+                                    (Private)</label>
+                                <textarea class="form-control" id="edit_staffNotes" name="staffNotes"
+                                    rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="editResourceForm" class="btn btn-primary">
+                    <i class="bi bi-floppy me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel"><i
+                        class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p></p> <i class="bi bi-info-circle-fill"></i> Are you sure you want to permanently
+                delete
+                this
+                e-resource?</p>
+                <p class="alert alert-info border border-danger text-center">
+                    <strong> This action cannot be undone. </strong>
+                </p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteResourceForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill me-2"></i> Yes, Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit
+                    E-Resource</h5>
+            </div>
+            <div class="modal-body">
+                <form id="editResourceForm" method="POST" action="">
+                    <!-- Section: Core Metadata -->
+                    <div class="mb-4 p-3 border rounded shadow-sm">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">Core
+                            Metadata</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="edit_title" class="form-label">Title of Work*</label>
+                                <input type="text" class="form-control" id="edit_title" name="title" required>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="edit_author" class="form-label">Author(s)*</label>
+                                <input type="text" class="form-control" id="edit_author" name="authors" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_year" class="form-label">Year of Publication</label>
+                                <input type="number" class="form-control" id="edit_year" name="year" min="1000"
+                                    max="2099">
+                            </div>
+                            <div class="col-12">
+                                <label for="edit_publisher" class="form-label">Publisher / Source*</label>
+                                <input type="text" class="form-control" id="edit_publisher" name="publisher" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_doi" class="form-label">DOI / Persistent URL</label>
+                                <input type="text" class="form-control" id="edit_doi" name="doi">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_issn_isbn" class="form-label">ISSN / ISBN</label>
+                                <input type="text" class="form-control" id="edit_issn_isbn" name="issn_isbn">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Fields for E-Journal -->
+                    <div id="edit_ejournalFields" class="mb-4 p-3 border rounded">
+                        <p class="form-section-header">E-Journal Specific Details</p>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="edit_volume" class="form-label">Volume</label>
+                                <input type="number" class="form-control" id="edit_volume" name="volume">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_issue" class="form-label">Issue</label>
+                                <input type="number" class="form-control" id="edit_issue" name="issue">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_pages" class="form-label">Page Range</label>
+                                <input type="text" class="form-control" id="edit_pages" name="pages">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Discoverability and Staff Notes -->
+                    <div class="mb-4 p-3 border rounded">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">
+                            Discoverability & Staff Notes</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="edit_subject" class="form-label">Subject Headings
+                                    (Keywords)</label>
+                                <input type="text" class="form-control" id="edit_subject" name="subject">
+                            </div>
+                            <div class="col-12">
+                                <label for="edit_staffNotes" class="form-label">Staff Notes
+                                    (Private)</label>
+                                <textarea class="form-control" id="edit_staffNotes" name="staffNotes"
+                                    rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="editResourceForm" class="btn btn-primary">
+                    <i class="bi bi-floppy me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel"><i
+                        class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p></p> <i class="bi bi-info-circle-fill"></i> Are you sure you want to permanently delete
+                this
+                e-resource?</p>
+                <p class="alert alert-info border border-danger text-center">
+                    <strong> This action cannot be undone. </strong>
+                </p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteResourceForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill me-2"></i> Yes, Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- Upload Modal -->
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel"><i class="bi bi-cloud-upload-fill me-2"></i>Upload
+                    New
+                    E-Resource</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4 text-center">Complete the fields below to add a new digital resource.
+                    Required
+                    fields are marked with an asterisk (*).</p>
+
+                <!-- The form is now inside the modal-body -->
+                <form id="eResourceForm" method="POST" action="{{ url_for('eresources.submit_resource') }}"
+                    enctype="multipart/form-data">
+                    <!-- NOTE: The form action now uses url_for() which is best practice in Flask -->
+
+                    <!-- Section 1: Resource Type and File Upload -->
+                    <div class="mb-4 p-3 border rounded">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">1. Resource
+                            Type
+                            &
+                            File</p>
+                        <div class="row align-items-center">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Select Resource Type</label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="resourceType" id="typeEbook"
+                                            value="Ebook" required>
+                                        <label class="form-check-label" for="typeEbook">E-Book*</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="resourceType"
+                                            id="typeEjournal" value="Ejournal">
+                                        <label class="form-check-label" for="typeEjournal">E-Journal /
+                                            Article</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="resourceFile" class="form-label fw-bold">Upload File</label>
+                                <input type="file" class="form-control" id="resourceFile" name="resourceFile" required>
+                                <div class="form-text text-muted fst-italic">Accepted formats: PDF, EPUB, DOCX,
+                                    PPTX,
+                                    etc. (Max 50MB)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Core Metadata -->
+                    <div class="mb-4 p-3 border rounded shadow-sm">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">2. Core
+                            Metadata
+                            (for Citations & Search)</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="title" class="form-label">Title of Work*</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+
+                            </div>
+                            <div class="col-md-8">
+                                <label for="authors" class="form-label">Author(s)*</label>
+                                <input type="text" class="form-control" id="authors" name="authors"
+                                    placeholder="e.g., Last, First I.; Doe, J." required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="year" class="form-label">Year of Publication</label>
+                                <input type="number" class="form-control" id="year" name="year" min="1000" max="2099"
+                                    required>
+                            </div>
+                            <div class="col-12">
+                                <label for="publisher" class="form-label">Publisher / Source*</label>
+                                <input type="text" class="form-control" id="publisher" name="publisher"
+                                    placeholder="e.g., Routledge, Journal of Information Science" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="doi" class="form-label">DOI / Persistent URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                                    <input type="text" class="form-control" id="doi" name="doi"
+                                        placeholder="e.g., https://doi.org/...">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="issn_isbn" class="form-label">ISSN / ISBN (Optional)</label>
+                                <input type="text" class="form-control" id="issn_isbn" name="issn_isbn"
+                                    placeholder="e.g., 978-3-16-148410-0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Fields for E-Journal -->
+                    <div id="ejournalFields" class="mb-4 p-3 border rounded d-none">
+                        <p class="form-section-header">E-Journal Specific Details</p>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="volume" class="form-label">Volume</label>
+                                <input type="number" class="form-control" id="volume" name="volume">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="issue" class="form-label">Issue</label>
+                                <input type="number" class="form-control" id="issue" name="issue">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="pages" class="form-label">Page Range</label>
+                                <input type="text" class="form-control" id="pages" name="pages"
+                                    placeholder="e.g., 12-25">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Section 3: Discoverability and Staff Notes -->
+                    <div class="mb-4 p-3 border rounded">
+                        <p class="form-section-header fw-bold text-primary border-bottom pb-2 mb-3">3.
+                            Discoverability &
+                            Staff Notes</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="subject" class="form-label">Subject Headings (Keywords)</label>
+                                <input type="text" class="form-control" id="subject" name="subject"
+                                    placeholder="e.g., Computer Science, Linguistics, History">
+                            </div>
+                            <div class="col-12">
+                                <label for="staffNotes" class="form-label">Staff Notes (Private)</label>
+                                <textarea class="form-control" id="staffNotes" name="staffNotes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- This button submits the form that is now in the modal-body -->
+                <button type="submit" form="eResourceForm" class="btn btn-success">
+                    <i class="bi bi-floppy me-2"></i>Submit Resource
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const contentArea = document.getElementById('ajax-page-content');
+
+
+        // use for search a certain text in the table but currently been seen. mao ni ang search input na i-apply sa table sa e-resources para maka search 
+        const textSearchInput = document.getElementById('search-input');
+
+        // Search functionality
+        if (textSearchInput) {
+            let searchTimeout;
+            textSearchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length === 0) return; // Don't search if empty
+
+                // Debounce the search to avoid too many requests
+                searchTimeout = setTimeout(() => {
+                    const searchUrl = `/eresources/search_eresources?query=${encodeURIComponent(query)}`;
+                    loadAjaxContent(searchUrl);
+                }, 300); // Wait 300ms after user stops typing
+            });
+        }
+
+        document.querySelectorAll('input[name="resourceType"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const ejournalFields = document.getElementById('ejournalFields');
+                if (ejournalFields) {
+                    ejournalFields.classList.toggle('d-none', this.value !== 'Ejournal');
+                }
+            });
+        });
+
+        function initializeDataTable(tableId) {
+            if (typeof $ === 'undefined' || !$.fn.DataTable) return;
+
+            const selector = `#${tableId}`;
+            const tableElement = document.querySelector(selector);
+            if (!tableElement) return;
+
+            if ($.fn.DataTable.isDataTable(selector)) {
+                $(selector).DataTable().destroy();
+            }
+
+            $(selector).DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: false,
+                lengthChange: false,
+                pageLength: 10,
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search...",
+                    paginate: {
+                        previous: "<i class='bi bi-chevron-left'></i>",
+                        next: "<i class='bi bi-chevron-right'></i>"
+                    }
+                }
+            });
+        }
+
+        function initPageComponents() {
+            if (typeof bootstrap !== 'undefined') {
+                document.querySelectorAll('.dropdown-toggle').forEach(dropdown => {
+                    bootstrap.Dropdown.getOrCreateInstance(dropdown);
+                });
+            }
+
+            initializeDataTable('table_eresourcesTopViews');
+            initializeDataTable('table_eresourceTopDownloads');
+            initializeDataTable('eresourcesReportTable');
+        }
+
+        function exportReportToWord() {
+            const reportWrapper = document.getElementById('eresourceReportWrapper');
+            if (!reportWrapper) return;
+
+            const header = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office'
+                    xmlns:w='urn:schemas-microsoft-com:office:word'
+                    xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>E-Resources Report</title></head><body>`;
+            const footer = '</body></html>';
+            const sourceHTML = header + reportWrapper.outerHTML + footer;
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement('a');
+
+            fileDownload.href = source;
+            fileDownload.download = 'e-resources-report.doc';
+            document.body.appendChild(fileDownload);
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+
+        function printReportSection() {
+            const reportWrapper = document.getElementById('eresourceReportWrapper');
+            if (!reportWrapper) return;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return;
+
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>E-Resources Report</title>
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                        <style>
+                            body { padding: 20px; }
+                            table { width: 100%; border-collapse: collapse; }
+                            th, td { border: 1px solid #dee2e6; padding: 8px; }
+                        </style>
+                    </head>
+                    <body>${reportWrapper.outerHTML}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 300);
+        }
+
+        function loadAjaxContent(url) {
+            if (!url || !contentArea) return;
+
+            contentArea.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-success"></div>
+                    <p class="mt-2">Loading...</p>
+                </div>
+            `;
+
+            fetch(url, {
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return null;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return response.text();
+                })
+                .then(html => {
+                    if (html === null) return;
+
+                    contentArea.innerHTML = html;
+                    setTimeout(initPageComponents, 100);
+                })
+                .catch(error => {
+                    console.error('Error loading content:', error);
+                    contentArea.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Failed to load content. Please try again.
+                        </div>
+                    `;
+                });
+        }
+
+        document.addEventListener('click', function (e) {
+            const pdfButton = e.target.closest('#exportPdfBtn');
+            if (pdfButton) {
+                e.preventDefault();
+                printReportSection();
+                return;
+            }
+
+            const wordButton = e.target.closest('#exportWordBtn');
+            if (wordButton) {
+                e.preventDefault();
+                exportReportToWord();
+                return;
+            }
+
+            const printButton = e.target.closest('#printBtn');
+            if (printButton) {
+                e.preventDefault();
+                printReportSection();
+                return;
+            }
+
+            const ajaxLink = e.target.closest('.ajax-link[data-url]');
+            if (ajaxLink) {
+                e.preventDefault();
+                loadAjaxContent(ajaxLink.dataset.url);
+                return;
+            }
+
+            const link = e.target.closest('.action-navbar .nav-link[data-url]');
+            if (!link || link.classList.contains('disabled')) return;
+
+            e.preventDefault();
+
+            document.querySelectorAll('.action-navbar .nav-link').forEach(navLink => {
+                navLink.classList.remove('active');
+            });
+            link.classList.add('active');
+
+            loadAjaxContent(link.dataset.url);
+        });
+
+        document.addEventListener('submit', function (e) {
+            const form = e.target.closest('#eresourceReportFilterForm');
+            if (!form) return;
+
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData).toString();
+            const url = `${form.action}?${params}`;
+
+            loadAjaxContent(url);
+        });
+
+        initPageComponents();
+    });
+</script>
+{% endblock %}

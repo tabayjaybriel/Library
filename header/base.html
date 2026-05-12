@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMU University Library</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/aboutus.css') }}">
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+
+
+</head>
+
+<body>
+    <!-- NAVBAR (kept the same) -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex flex-column align-items-start p-0" href="{{ url_for('home') }}">
+                <span class="brand-main">Central Mindanao University</span>
+                <span class="brand-sub">University Library</span>
+            </a>
+
+            <button class="navbar-toggler bg-warning" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                <!-- <ul class="navbar-top-nav mx-auto d-flex align-items-center justify-content-center ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('home') }}">
+                            <i class="bi bi-search me-2"></i>Search
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('auth.profile') }}">
+                            <i class="bi bi-person-circle me-2"></i>Profile
+                        </a>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{url_for('auth.aboutus')}}">
+                            <i class="bi bi-info-circle me-2"></i>About Us
+                        </a>
+                    </li>
+                </ul> -->
+
+
+                <ul class="navbar-nav ms-auto mb-0 mb-lg-0 align-items-center">
+                    {% if session.get('user_id') %}
+                    <li class="nav-item dropdown ms-lg-3">
+                        <button class="btn dropdown-toggle profile-dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i> {{ session['user_fullname'] | truncate(15) }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg">
+                            <li class="dropdown-header text-muted">Signed in as: {{
+                                session['user_level_name']|default('User') }}</li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li><a class="dropdown-item" href="{{url_for('home')}}"><i class="bi bi-house me-2"></i>
+                                    Home</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i
+                                        class="bi bi-person me-2"></i> My Account / Profile</a></li>
+
+                            {% if session['user_level'] == 1 %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.dashboard') }}"><i
+                                        class="bi bi-speedometer2 me-2"></i> Admin Dashboard</a></li>
+                            {% elif session['user_level'] == 2 %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.researchPortal') }}"><i
+                                        class="bi bi-journal-medical me-2"></i> Research Portal</a></li>
+                            {% elif session['user_level'] == 3 %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.facultyPortal') }}"><i
+                                        class="bi bi-briefcase me-2"></i> Faculty Portal</a></li>
+                            {% elif session['user_level'] == 4 %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.informationDeskPortal') }}"><i
+                                        class="bi bi-info-square me-2"></i> Information Desk</a></li>
+                            {% elif session['user_level'] == 5 %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.EresourcesPortal') }}"><i
+                                        class="bi bi-cloud-upload me-2"></i> E-Resources Portal</a></li>
+                            {% endif %}
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger"><i
+                                        class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item ms-lg-3">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-warning profile-dropdown-toggle">
+                            <i class="bi bi-lock me-1"></i> Log-In
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content-wrapper">
+        {% block content %}
+
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
+            <div id="appToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMessage">
+                        Success message
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    {% include 'footer/footer.html' %}
+    {% endblock %}
+
+    <!-- Core JS (order MATTERS) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    {% block scripts %}
+
+    <script>
+
+        //navrar active link handling and dynamic loading
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname; // e.g., "/home"
+
+            document.querySelectorAll('.navbar-nav .nav-link, .navbar-top-nav .nav-link').forEach(link => {
+                // Check if the link URL matches the current page
+                if (link.href.includes(currentPath)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            console.log("Bootstrap loaded? ->", typeof bootstrap);
+
+            // 🔥 GLOBAL AJAX & SIDEBAR CLICK HANDLING
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('.sidebar .nav-link, .ajax-link');
+                if (!link) return;
+
+                const url = link.dataset.url || link.dataset.path;
+                if (!url || url === "#") return;
+
+                e.preventDefault();
+
+                // Handle active states for sidebar
+                if (link.classList.contains('nav-link')) {
+                    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
+
+                const target = link.dataset.target || 'ajax-content-area';
+                showLoader(target);
+                loadContent(url, target);
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Loader
+        function showLoader(targetId = 'ajax-content-area') {
+            const target = document.getElementById(targetId) || document.querySelector('.main-content-wrapper');
+            target.innerHTML = `
+        <div class="d-flex justify-content-center align-items-center" style="height:70vh;">
+            <div class="spinner-border text-success" style="width:3rem;height:3rem;"></div>
+        </div>`;
+        }
+
+        // Dynamic load
+        function loadContent(url, targetId = 'ajax-content-area') {
+            fetch(url)
+                .then(r => r.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById(targetId) || doc.body;
+                    const targetContainer = document.getElementById(targetId) || document.querySelector('.main-content-wrapper');
+
+                    targetContainer.innerHTML = newContent.innerHTML;
+
+                    // reinit datatables
+                    document.querySelectorAll('.datatable:not(.dataTable)').forEach(t => {
+                        new DataTable(t);
+
+
+                    });
+
+                    // rebind bootstrap
+                    rebindBootstrap();
+                })
+                .catch(err => console.error(err));
+        }
+
+        // Bootstrap rebind
+        function rebindBootstrap() {
+            console.log("Rebinding Bootstrap...");
+
+            // Dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(el => {
+                bootstrap.Dropdown.getOrCreateInstance(el);
+            });
+
+            // Navbar toggler
+            document.querySelectorAll('.navbar-collapse').forEach(el => {
+                bootstrap.Collapse.getOrCreateInstance(el);
+            });
+
+        }
+    </script>
+
+    <!-- DataTables Config -->
+    {% include 'header/tables.html' %}
+
+    {% endblock %}
+
+
+
+</body>
+
+
+</html>

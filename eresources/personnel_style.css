@@ -1,0 +1,132 @@
+/* Central Mindanao University (CMU) Branding Colors */
+:root {
+    --cmu-green: #0c8658; /* Primary Green */
+    --cmu-gold: #FFC72C; /* Secondary Gold/Accent */
+    --cmu-dark-green: #086b46;
+    --cmu-light-gray: #F4F7F9; /* Adjusted for cleaner background */
+    --cmu-shadow: rgba(12, 134, 88, 0.15); /* Greenish shadow */
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Using a professional, modern font stack */
+    background-color: var(--cmu-light-gray);
+}
+
+/* 1. Primary Header Styling (Professional Banner) */
+.header-bg {
+    background-color: var(--cmu-green);
+    color: white;
+    padding: 1.5rem 0;
+    border-bottom: 8px solid var(--cmu-gold); /* Prominent Gold accent */
+    box-shadow: 0 4px 6px -1px var(--cmu-shadow);
+    margin-bottom: 2.5rem;
+}
+
+.header-bg h3 {
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* 2. Main Content Card */
+.personnel-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px var(--cmu-shadow), 0 4px 6px -2px var(--cmu-shadow);
+}
+
+/* 3. Button Styling (Add Personnel) */
+.btn-cmu-primary {
+    background-color: var(--cmu-green);
+    border-color: var(--cmu-green);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-cmu-primary:hover {
+    background-color: var(--cmu-dark-green);
+    border-color: var(--cmu-dark-green);
+    color: white;
+}
+
+/* 4. DataTables/Table Styling */
+#personnelTable thead th {
+    background-color: var(--cmu-dark-green);
+    color: var(--cmu-gold); /* Gold text on dark green header */
+    font-weight: 600;
+    border-bottom: none !important;
+}
+
+#personnelTable {
+    width: 100% !important; /* Ensure DataTables takes full width of its container */
+}
+
+/* Remove default DataTables border */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+}
+
+/* Hover effect on table rows for better interaction */
+#personnelTable tbody tr:hover {
+    background-color: #f1f8f3 !important; /* Very light green hint */
+}
+
+/* 5. Profile Image */
+.profile-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--cmu-gold); /* Gold ring around the photo */
+}
+
+/* 6. Dropdown Actions Button */
+.dropdown-toggle {
+    color: var(--cmu-green) !important;
+    border: 1px solid var(--cmu-green) !important;
+    border-radius: 0.5rem !important;
+}
+
+.dropdown-menu {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item:hover {
+    background-color: var(--cmu-light-gray);
+    color: var(--cmu-dark-green);
+}
+
+/* 7. Modal Styling */
+.modal-header-cmu {
+    background-color: var(--cmu-green);
+    color: white;
+    border-bottom: 5px solid var(--cmu-gold);
+    border-radius: calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0; /* Match modal border radius */
+}
+
+.modal-footer-cmu {
+    background-color: var(--cmu-light-gray);
+    border-top: 1px solid #eee;
+}
+
+.modal .btn-close {
+    color: white;
+    filter: invert(1) brightness(2); /* Makes the X visible against the green background */
+}
+
+/* Custom Modal for Status/Alerts (replacing native alert) */
+.status-modal-header-success {
+    background-color: var(--cmu-green);
+    color: white;
+    border-bottom: 3px solid var(--cmu-gold);
+}

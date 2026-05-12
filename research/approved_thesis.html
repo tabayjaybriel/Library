@@ -1,0 +1,169 @@
+
+
+
+{% block content %}
+<!-- DataTables & Buttons CSS -->
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css"> -->
+
+<style>
+    :root {
+        --cmu-maroon: #006a50;
+        --cmu-gold: #FFC82E;
+        --cmu-light-bg: #f8f9fa;
+        --font-family: 'Inter', sans-serif;
+    }
+
+    .dt-buttons .btn {
+        margin-right: 5px;
+    }
+
+    .page-header {
+        color: var(--cmu-maroon);
+        font-weight: 800;
+        border-bottom: 3px solid var(--cmu-gold);
+        padding-bottom: 0.5rem;
+    }
+
+    .table thead th {
+        background-color: var(--cmu-maroon);
+        /* Maroon header */
+        color: rgb(250, 248, 248);
+        font-weight: 600;
+        border: none;
+        vertical-align: middle;
+
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between page-header align-items-center mb-4">
+        <h5 class="dashboard-header mb-0" style="border-bottom: none;">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Approved Theses Report
+        </h5>
+        <a href="{{ url_for('auth.researchPortal') }}" class="btn btn-outline-primary btn-sm px-3 ajax-research-link">
+            <i class="bi bi-house me-1"></i> 
+        </a>
+    </div>
+
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Date Filter Form -->
+    <div class="card mb-4 ">
+        <div class=" card-body ">
+            <form method="GET" action="{{ url_for('research.approved_thesis') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date"
+                        value="{{ start_date or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary me-2"><i class="bi bi-funnel-fill"></i> Filter</button>
+                    <!-- <a href="{{ url_for('research.approved_thesis') }}" class="btn btn-outline-secondary"><i
+                            class="bi bi-x-circle"></i> Clear</a> -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Approved Theses Table -->
+    <div class="table-responsive bg-white border border-subtle p-2">
+        <table id="approvedThesisTable" class="table  table-striped table-hover rounded-2">
+            <thead>
+                <tr class="text-center">
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Course</th>
+                    <th>Title</th>
+                    <th>Research #</th>
+                    <th>Date Approved</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for thesis in approved_thesis_list %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <!-- Access related data via relationships -->
+                    <td>{{ thesis.student.user_fullName if thesis.student else 'N/A' }}</td>
+                    <td>{{ thesis.student.course_relation.courseName if thesis.student and
+                        thesis.student.course_relation else 'N/A' }}</td>
+                    <td>{{ thesis.title }}</td>
+                    <td>{{ thesis.researchNumber if thesis.researchNumber else 'N/A' }}</td>
+                    <td>
+                        {% if thesis.research_approval_date %}
+                            {# Check if it's a string; if so, slice it. Otherwise, format as datetime #}
+                            {{ thesis.research_approval_date[:10] if thesis.research_approval_date is string 
+                               else thesis.research_approval_date.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if thesis.researchStatus == 2 %}
+                        <span class="badge bg-success">Approved</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Unknown</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+<!-- jQuery -->
+<!-- <script src="https://code.jquery.com/jquery-3.7.1.js"></script> -->
+<!-- Bootstrap JS -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+
+<!-- DataTables & Buttons JS -->
+<!-- <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script> -->
+
+<script>
+    $(document).ready(function () {
+        new DataTable('#approvedThesisTable', {
+            // Add the layout configuration for buttons
+            layout: {
+                topStart: {
+                    buttons: [
+                        { extend: 'excelHtml5', className: 'btn btn-success', text: '<i class="bi bi-file-earmark-excel-fill"></i> Excel' },
+                        { extend: 'pdfHtml5', className: 'btn btn-danger', text: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF' },
+                        { extend: 'print', className: 'btn btn-info', text: '<i class="bi bi-printer-fill"></i> Print' }
+                    ]
+                }
+            },
+            responsive: true
+        });
+    });
+</script>
+
+{% endblock %}

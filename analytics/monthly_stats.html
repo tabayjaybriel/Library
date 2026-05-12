@@ -1,0 +1,158 @@
+{% block content %}
+
+
+
+<div class="mb-2 px-3 d-flex justify-content-center align-items-center">
+
+    <div class=" text-center bg-white ">
+        <h1 class="mb-0">Library Resources Usage</h1>
+        <span class="text-muted small uppercase me-2">
+            Analytics for views and downloads across the digital repository.
+        </span>
+    </div>
+
+
+</div>
+
+
+<div class="bg-body-secondary border border-dark-subtle p-2 ">
+
+    <div class="bg-light border border-dark-subtle ">
+
+        <div class="d-flex justify-content-end align-items-center p-2 gap-2">
+            <!-- Export Button -->
+
+            <button id="exportButton" class="btn btn-outline-secondary">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Data
+            </button>
+
+            <!-- Document Button -->
+            <button id="documentButton" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-file-earmark-text me-1"></i> Generate Document
+            </button>
+
+
+            <!-- Download Button -->
+            <button id="downloadButton" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-download me-1"></i> Download PDF
+            </button>
+
+
+            <!-- Print Button -->
+            <button id="printButton" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-printer me-1"></i> Print Report
+            </button>
+
+        </div>
+
+        <div class="border border-dark-sutle p-2">
+            <!-- 
+            <div class="mb-4 text-center bg-white py-2 shadow-sm">
+                <h3 class="mb-0"> Reports Usage </h3>
+                <span class="text-muted small uppercase">Resources</span>
+            </div> -->
+
+
+
+            <div class="d-flex align-items-end">
+                <span class="text-muted small fw-bold uppercase">Filter Date:</span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <input type="date" id="startDate" class="form-control" style="width:200px;">
+                    <input type="date" id="endDate" class="form-control" style="width:200px;">
+                    <button id="filterButton" class="btn btn-primary">Apply</button>
+                </div>
+
+                <div class="gap-2 mb-3">
+                    <button id="thesisButton" class="btn btn-outline-secondary">Thesis</button>
+                    <button id="journalButton" class="btn btn-outline-secondary">Journal</button>
+                    <button id="ebookButton" class="btn btn-outline-secondary">E-book</button>
+
+                </div>
+
+            </div>
+
+
+            <div class="badge bg-success text-white px-3 py-2 rounded-pill">
+                Live Data
+            </div>
+            <div class="card p-2 shadow-sm" style="height:350px;">
+
+
+                <canvas id="eresourceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let chartInstance = null
+    let selectedResource = "all"
+
+    function loadChart(start = "", end = "", resource = "all") {
+
+        const url = `/api/analytics/monthly?start_date=${start}&end_date=${end}&resource=${resource}`
+
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error("API error")
+                return res.json()
+            })
+            .then(data => {
+
+                const labels = data.map(d => d.month)
+                const views = data.map(d => d.views)
+                const downloads = data.map(d => d.downloads)
+
+                const ctx = document.getElementById("eresourceChart").getContext("2d")
+
+                if (chartInstance) chartInstance.destroy()
+
+                chartInstance = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: "Views", data: views },
+                            { label: "Downloads", data: downloads }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: "top", align: "end" } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                })
+            })
+            .catch(err => console.error("Chart load failed:", err))
+    }
+
+    // Initialize immediately for AJAX loading
+        loadChart()
+
+        filterButton.onclick = () => {
+            loadChart(startDate.value, endDate.value, selectedResource)
+        }
+
+        thesisButton.onclick = () => {
+            selectedResource = "thesis"
+            loadChart(startDate.value, endDate.value, selectedResource)
+        }
+
+        journalButton.onclick = () => {
+            selectedResource = "journal"
+            loadChart(startDate.value, endDate.value, selectedResource)
+        }
+
+        ebookButton.onclick = () => {
+            selectedResource = "ebook"
+            loadChart(startDate.value, endDate.value, selectedResource)
+        }
+</script>
+{% endblock %}

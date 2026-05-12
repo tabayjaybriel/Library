@@ -1,0 +1,156 @@
+{% block content %}
+<div class="container-fluid py-2">
+    <!-- Filter Header -->
+    <div class=" border border-dark shadow-sm ">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-graph-up-arrow me-2 text-success"></i>
+                    {{ time_filter }} Activity Report
+                </h4>
+                <div class="d-flex align-items-center">
+                    <span class="text-muted small fw-bold text-uppercase me-3 letter-spacing-1">Export</span>
+                    <div class="btn-group shadow-sm">
+                        <button type="button" class="btn btn-white border btn-sm"
+                            onclick="exportTableToExcel('MonthlyAnalytics', 'usage_report')">
+                            <i class="bi bi-file-earmark-excel text-success me-1"></i> Excel
+                        </button>
+                        <button type="button" class="btn btn-white border btn-sm"
+                            onclick="exportTableToWord('MonthlyAnalytics')">
+                            <i class="bi bi-file-earmark-word text-primary me-1"></i> Word
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <form method="get" class="row g-3 align-items-end" action="{{ url_for('analytics.date_analytics') }}">
+                <div class="col-md-9">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Specify Period</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="bi bi-calendar-event text-muted"></i></span>
+                        <input type="date" name="start_date" class="form-control border-start-0"
+                            value="{{ start_date }}">
+                        <span class="input-group-text bg-light border-start-0 border-end-0 text-muted">to</span>
+                        <input type="date" name="end_date" class="form-control border-start-0" value="{{ end_date }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark w-100 fw-bold btn-submitdate shadow-sm py-2">
+                        <i class="bi bi-funnel me-2"></i>Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+
+    <!-- Stats Table -->
+     
+    <div class=" border border-dark overflow-hidden shadow-sm">
+        <div class=" bg-white py-3 border-bottom shadow-sm d-flex align-items-center">
+            <h5 class="mb-0 fw-bold text-dark p-2">
+                <i class="bi bi-table me-2 text-primary"></i>Engagement Summary
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="table-responsive ">
+                <table class="table table-hover table-bordered table-striped align-middle mb-0" id="MonthlyAnalytics">
+                    <thead class="bg-light table-bordered">
+                        <tr>
+                            <th class="ps-4 py-3 border-0 text-muted small text-uppercase" style="width: 80px;">#
+                            </th>
+                            <th class="py-3 border-0 text-muted small text-uppercase">{{ time_filter }}</th>
+                            <th class="text-center py-3 border-0 text-muted small text-uppercase">Total Views</th>
+                            <th class="text-center py-3 border-0 text-muted small text-uppercase">Total Downloads
+                            </th>
+                            <th class="text-center py-3 border-0 fw-bold text-dark small text-uppercase pe-4">
+                                Combined
+                                Reach</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for period, views, downloads in analytics_data %}
+                        <tr>
+                            <td class="ps-4 text-muted small">{{ loop.index }}</td>
+                            <td>
+                                <span
+                                    class="badge bg-success-subtle text-success border border-success border-opacity-25 rounded-pill px-3">
+                                    {{ period }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-primary">{{ views or 0 }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-success">{{ downloads or 0 }}</span>
+                            </td>
+                            <td class="text-center pe-4">
+                                <div class="badge bg-dark rounded-pill px-3 py-2 fw-bold" style="min-width: 60px;">
+                                    {{ (views or 0) + (downloads or 0) }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-search fs-1 opacity-25 d-block mb-3"></i>
+                                    No data found for the selected range.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+        downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], { type: dataType });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+            downloadLink.download = filename;
+            downloadLink.click();
+        }
+    }
+
+    function exportTableToWord(tableID) {
+        var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+            "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+            "xmlns='[http://www.w3.org/TR/REC-html40](http://www.w3.org/TR/REC-html40)'>" +
+            "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
+        var footer = "</body></html>";
+        var sourceHTML = header + document.getElementById(tableID).outerHTML + footer;
+
+        var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+        var fileDownload = document.createElement("a");
+        document.body.appendChild(fileDownload);
+        fileDownload.href = source;
+        fileDownload.download = 'UsageReport.doc';
+        fileDownload.click();
+        document.body.removeChild(fileDownload);
+    }
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patron List</title>
+    <!-- Include Bootstrap CSS for table styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include jQuery, which is a dependency for DataTables -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- Include DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="d-flex justify-content-center"><u>Patron List</u></h2>
+        
+
+        <table class="table table-striped table-bordered table-hover" id="tablepatron">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Level</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through each user in the patron_List passed from the Flask route -->
+                {% for user in patron_List %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.user_fullName }}</td>
+                    <td>{{ user.user_userName }}</td>
+                    <td>{{ user.user_password }}</td>
+                    <td>
+                        <!-- Use a conditional statement to display the level in words -->
+                        {% if user.level == 0 %}
+                            Student
+                        {% elif user.level == 1 %}
+                            Admin
+                        {% elif user.level == 2 %}
+                            Research
+                        {% elif user.level == 3 %}
+                            Faculty
+                        {% elif user.level == 4 %}
+                            Front Desk
+                        {% else %}
+                            Visitor
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-primary">Edit</button>
+                        <button type="button" class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Include DataTables JavaScript -->
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <!-- Include DataTables Bootstrap integration -->
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        // Use jQuery to initialize the DataTable on page load
+        $(document).ready(function() {
+            // This is the core line that turns your table into a Datatable
+            $('#tablepatron').DataTable();
+        });
+    </script>
+
+</body>
+</html>

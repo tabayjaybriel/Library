@@ -1,0 +1,252 @@
+{% block content %}
+<style>
+    /* Custom styles for the E-Resources Admin Page */
+
+    .form-section-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--cmu-maroon);
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .control-panel {
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.75rem;
+    }
+
+    .search-input-group .form-control {
+        border-right: none;
+    }
+
+    .search-input-group .input-group-text {
+        background-color: #f8fafc;
+        border-left: none;
+    }
+</style>
+
+
+<!-- <div class="container-fluid py-2"> -->
+
+
+<!-- 1. Header & Quick Controls -->
+<div class="container-fluid align-items-center">
+    <div class="col-md-6">
+        <h3 class="mb-0 fw-bold mb-1"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>New Resource
+        </h3>
+
+        <p class="text-muted small">Search, filter, and upload digital materials to the portal.</p>
+    </div>
+
+    <div class="border-bottom d-flex justify-content-end align-items-center">
+
+        <span class="badge bg-white text-muted border fw-normal">Max 50MB</span>
+    </div>
+    <!-- <div class="col-md-6 text-md-end"> -->
+    <!-- <div class="btn-group shadow-sm" role="group"> -->
+
+    <!-- <a href="{{ url_for('eresources.uploadResources') }}"  class="btn btn-outline-cmu  px-4">
+                <i class="bi bi-speedometer2 me-2"></i>Upload New Resource
+            </a> -->
+
+    <!-- <a href="#" data-url="{{ url_for('eresources.eresources_EBookList', resource_type='Ebook') }}"
+                class="btn btn-outline-cmu px-4">
+                <i class="bi bi-journal-bookmark-fill me-2"></i>List
+            </a>
+
+            <a href="#" data-url="{{url_for('eresources.eresources_EJournalList', resource_type='Ejournal')}}"
+                class="btn btn-outline-cmu px-4">
+                <i class="bi bi-journal-bookmark-fill me-2"></i>E-Journals
+            </a> -->
+
+
+    <!-- </div> -->
+
+    <!-- 2. Search & Filter Panel -->
+
+
+
+    <!-- <div class="control-panel p-3 mb-4 align-items-center gap-3">
+            <div class="input-group search-input-group ">
+
+                <input type="text" class="form-control " id="search-input"
+                    placeholder="Quick find by title, author, or keyword...">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+            </div>
+        </div> -->
+
+    <div class="border border-dark-subtle  bg-subtle p-2 bg-body-secondary">
+
+        <!-- 3. Alert Messages  -->
+        <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show rounded-3" role="alert">
+                <i class="bi bi-info-circle me-2"></i> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %} -->
+
+        <!-- <div class="border border-dark-subtle"> -->
+        <div id="eresources-main-panel" class="col-12 ">
+            <!-- <div class="container-fluid p-0"> -->
+
+                <!-- <div id="formAlert"></div> -->
+
+                <div class="card-body  p-lg-2">
+                    <form class="ajax-form" method="POST" action="{{ url_for('eresources.submit_resource') }}"
+                        enctype="multipart/form-data">
+
+                        <div class="form-alert mb-3"></div>
+
+
+                        <!-- <form id="eResourceForm" method="POST" action="{{ url_for('eresources.submit_resource') }}"
+                            enctype="multipart/form-data"> -->
+
+                        <!-- Section 1: Type & File -->
+                        <div class="mb-4 p-4">
+                            <div class="form-section-header border-bottom pb-2">1. Classification & Source</div>
+                            <div class="row g-4 mb-5">
+                                <div class="col-md-5">
+                                    <label class="form-label small fw-bold text-muted">Resource Category</label>
+                                    <div class="d-flex gap-4 p-2 border rounded-3 bg-light-subtle">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="resourceType"
+                                                id="typeEbook" value="Ebook" required checked>
+                                            <label class="form-check-label small" for="typeEbook">E-Book</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="resourceType"
+                                                id="typeEjournal" value="Ejournal">
+                                            <label class="form-check-label small" for="typeEjournal">E-Journal
+                                                Article</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7">
+                                    <label for="resourceFile" class="form-label small fw-bold text-muted">File
+                                        Selection*</label>
+                                    <input type="file" class="form-control rounded-3" id="resourceFile"
+                                        name="resourceFile" required>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Section 2: Core Metadata -->
+
+                        <div class="border border-dark-subtle bg-white  mb-4 p-4 rounded-2">
+                            <div class="form-section-header border-bottom pb-2">2. Publication Metadata</div>
+                            <div class="row g-3 mb-5">
+                                <div class="col-12">
+                                    <label for="title" class="form-label small fw-bold text-muted">Full
+                                        Title*</label>
+                                    <input type="text" class="form-control rounded-3" id="title" name="title"
+                                        placeholder="Enter the official title..." required>
+                                </div>
+                                <div class="col-md-8">
+                                    <label for="authors" class="form-label small fw-bold text-muted">Author(s)*</label>
+                                    <input type="text" class="form-control rounded-3" id="authors" name="authors"
+                                        placeholder="Surname, First Name (e.g. Smith, John)" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="year" class="form-label small fw-bold text-muted">Publication
+                                        Year*</label>
+                                    <input type="number" class="form-control rounded-3" id="year" name="year" min="1000"
+                                        max="2099" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="publisher" class="form-label small fw-bold text-muted">Publisher or
+                                        Journal
+                                        Source*</label>
+                                    <input type="text" class="form-control rounded-3" id="publisher" name="publisher"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="doi" class="form-label small fw-bold text-muted">DOI / Persistent
+                                        URL</label>
+                                    <input type="text" class="form-control rounded-3" id="doi" name="doi"
+                                        placeholder="https://doi.org/...">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="issn_isbn" class="form-label small fw-bold text-muted">ISSN /
+                                        ISBN</label>
+                                    <input type="text" class="form-control rounded-3" id="issn_isbn" name="issn_isbn">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Dynamic E-Journal Fields -->
+
+
+                        <div id="ejournalFields" class="mb-5 d-none p-4 rounded-4 rounded-2"
+                            style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                            <div class="form-section-header" style="color: #64748b;">E-Journal Specific Details
+                                <hr>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="volume" class="form-label small fw-bold text-muted">Volume</label>
+                                    <input type="number" class="form-control bg-white" id="volume" name="volume">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="issue" class="form-label small fw-bold text-muted">Issue</label>
+                                    <input type="number" class="form-control bg-white" id="issue" name="issue">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="pages" class="form-label small fw-bold text-muted">Page
+                                        Range</label>
+                                    <input type="text" class="form-control bg-white" id="pages" name="pages"
+                                        placeholder="e.g. 101-120">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Section 3: Indexing -->
+                        <div class="border border-dark-subtle bg-white  mb-4 p-4 rounded-2">
+
+                            <div class="form-section-header border-bottom pb-2">3. Organization</div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="subject" class="form-label small fw-bold text-muted">Keywords /
+                                        Subjects</label>
+                                    <input type="text" class="form-control rounded-3" id="subject" name="subject"
+                                        placeholder="Comma separated tags...">
+                                </div>
+                                <div class="col-12">
+                                    <label for="staffNotes" class="form-label small fw-bold text-muted">Internal
+                                        Staff
+                                        Notes</label>
+                                    <textarea class="form-control rounded-3" id="staffNotes" name="staffNotes"
+                                        rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="reset" class="btn btn-link text-secondary text-decoration-none me-3">Clear
+                                Form</button>
+                            <button type="submit" class="btn cmu-button px-5">
+                                <i class="bi bi-cloud-check me-2"></i>Save E-Resource
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            <!-- </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+
+
+{% endblock %}

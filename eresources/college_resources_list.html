@@ -1,0 +1,170 @@
+{%block content%}
+
+<div class="container">
+    <hr>
+
+    <div class="row justify-content-center">
+
+        <h3 class="text-center fw-bold mb-4">E-Library Resources</h3>
+
+        <div class="col-lg-10">
+            
+            <!-- Resource List  loping start diri -->
+            <table id="listE-Resources" class="table table-borderless w-100">
+                <thead class="d-none bg-success text-white">
+                    <tr>
+                        <th>Resource Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eResource in myITEresources %}
+                    <tr>
+                        <td class="p-0 pb-3 border-0">
+                            <div
+                                class="list-group-item list-group-item-action border rounded-3 p-3 resource-row bg-white">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-auto d-flex align-items-center gap-3">
+                                        <span class="text-muted fw-bold small">{{ loop.index }}</span>
+                                        <div class="icon-box">
+                                            <i class="fas fa-file-lines fa-lg"></i>
+                                        </div>
+                                    </div>
+
+                                    <!-- Resource Info -->
+                                    <div class="col">
+                                        <h5 class="mb-1 fw-bold text-dark">{{eResource.title|truncate}}</h5>
+                                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                                            <span class="text-muted small"><i
+                                                    class="bi bi-person-bounding-box"></i>
+                                                {{eResource.last_name}}, {{eResource.first_name}}</span>
+                                            <span class="badge bg-light text-dark border">
+                                                <i class="bi bi-calendar3"></i> {{eResource.copyright_yy}} </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stats Section -->
+                                    <div class="col-md-auto">
+                                        <div class="d-flex gap-2">
+                                            <div class="stat-badge text-center border">
+                                                <div class="small text-uppercase text-muted"
+                                                    style="font-size: 0.65rem;">Views</div>
+                                                <div class="view-count fw-bold text-primary"
+                                                    data-thesis-id="{{ eResource.id }}">{{ eResource.view_count }}</div>
+                                            </div>
+                                            <div class="stat-badge text-center border">
+                                                <div class="small text-uppercase text-muted"
+                                                    style="font-size: 0.65rem;"> Downloads
+                                                </div>
+                                                <div class="download-count fw-bold text-success"
+                                                    data-thesis-id="{{ eResource.id }}">{{ eResource.download_count }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons: Changed to links for direct navigation -->
+                                    <div class="col-auto">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#viewModal"
+                                                data-thesis-id="{{ eResource.id }}" title="View Details">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                            <a href="{{ url_for('auth.download_thesis', thesis_id=eResource.id) }}"
+                                                class="btn btn-outline-secondary btn-sm" title="Download">
+                                                <i class="bi bi-download px-1"></i> Download
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Resource List  loping end diri -->
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- View Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="viewModalLabel">Resource Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="modalTitle" class="fw-bold text-primary mb-3"></h4>
+                <div id="modalContent" class="text-muted">
+                    <p id="modalAbstract"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let table;
+        if (typeof $ !== 'undefined' && $.fn.DataTable) {
+            table = $('#listE-Resources').DataTable({
+                dom: 'rt<"d-flex justify-content-between align-items-center mt-4"ip>', // Custom layout: r=processing, t=table, i=info, p=pagination
+                pageLength: 10,
+                ordering: false, // Disable sorting to maintain the list order
+                language: {
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        previous: "Previous",
+                        next: "Next"
+                    }
+                }
+            });
+
+            // Bind custom search input to DataTable
+            $('#resourceSearch').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        }
+
+        // Modal Logic
+        const viewModal = document.getElementById('viewModal');
+        if (viewModal) {
+            viewModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-thesis-id');
+                
+                // Reset content
+                viewModal.querySelector('#modalTitle').textContent = 'Loading...';
+                viewModal.querySelector('#modalAbstract').textContent = '';
+
+                // Fetch details
+                fetch(`/eresources/get_details/thesis/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        viewModal.querySelector('#modalTitle').textContent = data.title;
+                        viewModal.querySelector('#modalAbstract').textContent = data.description;
+                        
+                        // Update view count on the page
+                        const viewCountEl = document.querySelector(`.view-count[data-thesis-id="${id}"]`);
+                        if (viewCountEl) {
+                            viewCountEl.textContent = data.view_count;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        viewModal.querySelector('#modalTitle').textContent = 'Error loading details.';
+                    });
+            });
+        }
+    });
+</script>
+
+{%endblock%}

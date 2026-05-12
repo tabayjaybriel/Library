@@ -1,0 +1,583 @@
+{% block content %}
+
+<div id="profileSettingsWrapper" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="dashboard-header mb-0" style="border-bottom: none;">
+            <i class="bi bi-person-gear me-2"></i>Profile
+        </h5>
+
+        <!-- personnel Button -->
+        <div class="dropdown">
+            <button class="btn btn-sm dropdown-toggle btn-outline-success" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="bi bi-gear"></i>
+            </button>
+            <ul class="dropdown-menu text-center" aria-labelledby="dropdownMenuButton1">
+                <li>
+                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changeUsernameModal">
+                        <i class="bi bi-person-gear me-2"></i>
+                        Change Username
+                    </a>
+                </li>
+
+                <hr class="dropdown-divider">
+                <li>
+                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="bi bi-lock-fill me-2"></i>
+                        Change Password
+                    </a>
+                </li>
+
+                <!-- <li>
+                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePictureModal">
+                        <i class="bi bi-image me-2"></i>
+                        Change Picture
+                    </a>
+                </li>
+                <hr class="dropdown-divider"> -->
+
+            </ul>
+
+            <!-- Home Button -->
+            <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-primary btn-sm  ">
+                <i class="bi bi-house me-1"></i>
+            </a>
+
+        </div>
+
+
+
+    </div>
+
+    <hr>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+
+
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-header bg-success text-white py-3 border-bottom border-light">
+            <h5 class="mb-0 fw-bold text-white">
+                <i class="bi bi-gear-fill me-2"></i>Account Settings
+            </h5>
+        </div>
+
+
+        <div class="card-body p-4">
+            <!-- Explicit action ensures that even if JS fails, it hits the right route -->
+            <form id="profileSettingsForm" method="POST" action="{{ url_for('personnel.update_user_profile') }}">
+                <input type="hidden" id="userId" value="{{ user.id }}">
+
+                <!-- Section: Personal Information -->
+                <div class="row mb-5">
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-1">Personal Information</h6>
+                        <p class="text-muted small">Update your basic identity details and residential address.</p>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="lastName" class="form-label small fw-semibold">Last Name</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="lastName"
+                                    name="last_name" placeholder="Last Name" value="{{ user.user_lastName }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="firstName" class="form-label small fw-semibold">First Name</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="firstName"
+                                    name="first_name" placeholder="First Name" value="{{ user.user_firstName }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="middleName" class="form-label small fw-semibold">Middle Name</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="middleName"
+                                    name="middle_name" placeholder="Middle Name" value="{{ user.user_middleName }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="Address" class="form-label small fw-semibold">Home Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="bi bi-geo-alt"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none" id="Address"
+                                        name="address" placeholder="Complete Street, City, Province"
+                                        value="{{ user.user_address }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-25">
+
+                <!-- Section: Contact Information -->
+                <div class="row mb-5">
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-1">Contact Information</h6>
+                        <p class="text-muted small">Ensure your contact details are up to date for notifications.</p>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label small fw-semibold">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control bg-light border-0 shadow-none" id="email"
+                                        name="email" value="{{ user.user_email }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Contact" class="form-label small fw-semibold">Contact Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-phone"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none" id="Contact"
+                                        name="Contact" value="{{ user.phoneNumber }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-25">
+
+                <!-- Section: Institutional Information -->
+                <div class="row mb-4">
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-1">Institutional Information</h6>
+                        <p class="text-muted small">Your academic records and university identification.</p>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="CMUID" class="form-label small fw-semibold">CMU ID Number</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none " id="CMUID"
+                                    name="CMUID" value="{{ user.barcode  }}">
+                                <div class="form-text mt-1"><i class="bi bi-info-circle me-1"></i>Official ID Number.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="LibraryID" class="form-label small fw-semibold">Library ID Number</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="LibraryID"
+                                    name="LibraryID" value="{{ user.district_id  }}">
+                                <div class="form-text mt-1"><i class="bi bi-info-circle me-1"></i>Official Library ID
+                                    Number.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="selectCollege" class="form-label small fw-semibold">College</label>
+                                <select name="selectCollege" id="selectCollege"
+                                    class="form-select bg-light border-0 shadow-none">
+                                    <option value="">Select College</option>
+                                    {% for college in colleges %}
+                                    <option value="{{ college.id }}" {% if user.user_college==college.id %}selected{%
+                                        endif %}>{{ college.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-6">
+                                <label for="courseInput" class="form-label small fw-semibold">Degree Program /
+                                    Course</label>
+                                <div class="position-relative">
+                                    <input type="text" name="selectCourse" id="courseInput"
+                                        class="form-control bg-light border-0 shadow-none"
+                                        placeholder="Type to search course..." list="courseOptions"
+                                        value="{{ user.course_relation.courseName if user.course_relation else '' }}">
+                                    <datalist id="courseOptions">
+                                        <!-- Options populated via AJAX -->
+                                    </datalist>
+
+                                    <!-- Visual indicator for AJAX loading -->
+                                    <div id="courseLoader"
+                                        class="spinner-border spinner-border-sm text-success d-none position-absolute"
+                                        style="right: 10px; top: 10px;" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <div id="courseFeedback" class="form-text small">Please select a college first.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-3 border-top d-flex justify-content-end gap-2">
+
+                    <button type="submit" class="btn btn-success px-4 d-flex align-items-center shadow-sm">
+                        <i class="bi bi-check2-circle me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- MANDATORY: Confirmation Modal (The script needs this to exist!) -->
+    <div class="modal fade" id="confirmSaveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Changes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to update your profile information?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmSaveBtn" class="btn btn-success">Yes, Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANDATORY: Status Modal (For Success/Error messages) -->
+    <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" id="statusModalHeaderContainer">
+                <div id="statusModalHeader" class="modal-header">
+                    <h5 class="modal-title" id="statusModalLabel">Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="statusModalBody">
+                    <!-- Message injected by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- modal for change of username -->
+
+    <div class="modal fade" id="changeUsernameModal" tabindex="-1" aria-labelledby="changeUsernameModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="changeUsernameModalLabel"><i class="bi bi-gear-fill me-2"></i> Change
+                        Username</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Change Username Form -->
+                    <form id="changeUsernameForm">
+                        <div class="mb-3">
+                            <label for="newUsername" class="form-label">New Username</label>
+                            <input type="text" class="form-control" id="newUsername" name="new_username"
+                                placeholder="Enter new username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="currentPasswordForUsername" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPasswordForUsername"
+                                name="current_password_username" placeholder="Enter current password">
+                        </div>
+
+                        <hr>
+                        <div class="mb-3 d-flex justify-content-end">
+
+                            <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle me-2"></i>
+                                Change Username</button>
+
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- modal for change of password    -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="changePasswordModalLabel"> <i class="bi bi-gear-fill me-2"></i> Change
+                        Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Change Password Form -->
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label for="currentPasswordForPassword" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPasswordForPassword"
+                                name="current_password_password" placeholder="Enter current password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" name="new_password"
+                                placeholder="Enter new password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmNewPassword"
+                                name="confirm_new_password" placeholder="Confirm new password">
+                        </div>
+
+                        <hr>
+                        <div class="mb-3 d-flex justify-content-end">
+
+                            <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle me-2"></i>
+                                Change Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- End of profileSettingsWrapper -->
+</div>
+
+<!-- End of profileSettingsWrapper -->
+
+
+
+
+<script>
+    window.initProfileSettings = function () {
+        const form = document.getElementById('profileSettingsForm');
+        const collegeSelect = document.getElementById('selectCollege');
+        const courseInput = document.getElementById('courseInput');
+        const courseOptions = document.getElementById('courseOptions');
+        const courseLoader = document.getElementById('courseLoader');
+        const courseFeedback = document.getElementById('courseFeedback');
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+
+        // Defensive Modal Initialization
+        const confirmSaveModalEl = document.getElementById('confirmSaveModal');
+        const statusModalEl = document.getElementById('statusModal');
+        const changeUserModalEl = document.getElementById('changeUsernameModal');
+        const changePassModalEl = document.getElementById('changePasswordModal');
+
+        // Re-initialize dropdowns for dynamically loaded content
+        const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.map(function (dropdownToggleEl) { return new bootstrap.Dropdown(dropdownToggleEl); });
+
+        if (!confirmSaveModalEl || !statusModalEl) {
+            console.warn("Required modals not found in DOM. Check if they were excluded during AJAX load.");
+            return;
+        }
+
+        const confirmSaveModal = new bootstrap.Modal(confirmSaveModalEl);
+        const statusModal = new bootstrap.Modal(statusModalEl);
+        const changeUserModal = new bootstrap.Modal(changeUserModalEl);
+        const changePassModal = new bootstrap.Modal(changePassModalEl);
+
+        // =========================================================
+        // HELPERS
+        // =========================================================
+
+        const setStatusModal = (type, message) => {
+
+            const statusModalHeader = document.getElementById('statusModalHeader');
+            const statusModalLabel = document.getElementById('statusModalLabel');
+            const statusModalBody = document.getElementById('statusModalBody');
+
+            if (type === 'success') {
+
+                statusModalHeader.className = 'modal-header bg-success text-white';
+
+                statusModalLabel.innerHTML =
+                    '<i class="bi bi-check-circle me-2"></i> Success';
+
+            } else {
+
+                statusModalHeader.className = 'modal-header bg-danger text-white';
+
+                statusModalLabel.innerHTML =
+                    '<i class="bi bi-exclamation-circle me-2"></i> Error';
+            }
+
+            statusModalBody.innerHTML = message;
+
+            statusModal.show();
+        };
+
+        async function loadCourses(collegeId) {
+            if (!courseInput || !courseOptions) return;
+            courseInput.value = '';
+            courseOptions.innerHTML = '';
+            if (!collegeId) {
+                courseInput.disabled = true;
+                courseFeedback.textContent = 'Please select a college first.';
+                return;
+            }
+            courseInput.disabled = true;
+            courseLoader?.classList.remove('d-none');
+            try {
+                const url = "{{ url_for('listofthesis.get_courses') }}?college_id=" + collegeId;
+                const response = await fetch(url);
+                const courses = await response.json();
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.courseName;
+                    courseOptions.appendChild(option);
+                });
+                courseInput.disabled = false;
+                courseFeedback.textContent = `Found ${courses.length} courses.`;
+            } catch (error) {
+                courseFeedback.textContent = 'Error loading courses.';
+            } finally {
+                courseLoader?.classList.add('d-none');
+            }
+        }
+
+        collegeSelect?.addEventListener('change', function () {
+            loadCourses(this.value);
+        });
+
+        form?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            confirmSaveModal.show();
+        });
+
+        confirmSaveBtn?.addEventListener('click', async () => {
+            confirmSaveModal.hide();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnHTML = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Saving...`;
+
+            const data = {
+                first_name: document.getElementById('firstName').value,
+                middle_name: document.getElementById('middleName').value,
+                last_name: document.getElementById('lastName').value,
+                address: document.getElementById('Address').value,
+                contact: document.getElementById('Contact').value,
+                college: collegeSelect.value,
+                course: courseInput.value,
+                email: document.getElementById('email').value,
+                barcode: document.getElementById('CMUID').value,
+                district_id: document.getElementById('LibraryID').value
+            };
+
+            try {
+                const response = await fetch("{{ url_for('personnel.update_user_profile') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Redirect immediately to the profile dashboard
+                    window.location.href = result.redirect || "{{ url_for('auth.profile') }}";
+                } else {
+                    setStatusModal('error', result.message || 'Failed to update profile.');
+                }
+            } catch (error) {
+                setStatusModal('error', 'Connection error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHTML;
+            }
+        });
+
+        // =========================================================
+        // CHANGE USERNAME HANDLER
+        // =========================================================
+        document.getElementById('changeUsernameForm')?.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                new_username: document.getElementById('newUsername').value,
+                current_password: document.getElementById('currentPasswordForUsername').value
+            };
+
+            try {
+                const response = await fetch("{{ url_for('personnel.change_username') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                changeUserModal.hide();
+                if (response.ok) {
+                    setStatusModal('success', result.message);
+                    setTimeout(() => location.reload(), 1500); // Reload to update navbar username
+                } else {
+                    setStatusModal('error', result.message);
+                }
+            } catch (error) {
+                setStatusModal('error', 'An error occurred.');
+            }
+        });
+
+        // =========================================================
+        // CHANGE PASSWORD HANDLER
+        // =========================================================
+        document.getElementById('changePasswordForm')?.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const current_password = document.getElementById('currentPasswordForPassword').value;
+            const new_password = document.getElementById('newPassword').value;
+            const confirm_password = document.getElementById('confirmNewPassword').value;
+
+            if (new_password !== confirm_password) {
+                setStatusModal('error', 'New passwords do not match.');
+                return;
+            }
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            try {
+                const response = await fetch("{{ url_for('personnel.change_password') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({
+                        current_password,
+                        new_password,
+                        confirm_password // Changed to match the backend expectation
+                    })
+                });
+
+                const result = await response.json();
+                changePassModal.hide();
+
+                if (response.ok) {
+                    setStatusModal('success', result.message);
+                    this.reset();
+                } else {
+                    setStatusModal('error', result.message);
+                }
+            } catch (error) {
+                setStatusModal('error', 'An error occurred.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHTML;
+            }
+        });
+    };
+
+    // Execute logic immediately or on DOM load depending on how page was accessed
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.initProfileSettings);
+    } else {
+        window.initProfileSettings();
+    }
+</script>
+
+{% endblock %}

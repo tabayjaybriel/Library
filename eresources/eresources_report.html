@@ -1,0 +1,220 @@
+{% block content %}
+<div class="container-fluid py-2 mt-2">
+
+    <div class="card" id="eresourceReportWrapper">
+
+        <div
+            class="card-header bg-subtle text-dark mb-1 align-items-center d-flex justify-content-between flex-wrap gap-2">
+            <div class="control-form nb-2 gap-2">
+                <form id="eresourceReportFilterForm" action="{{ url_for('eresources.report_eresource') }}" method="GET"
+                    class="d-flex align-items-center gap-2 flex-wrap mb-0">
+                    <span class="mb-0 fw-semibold">Select date range:</span>
+                    <label for="start_date" class="visually-hidden">Start date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control form-control-sm"
+                        value="{{ start_date or '' }}">
+                    <label for="end_date" class="visually-hidden">End date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control form-control-sm"
+                        value="{{ end_date or '' }}">
+                    <button type="submit" class="btn btn-light btn-sm" id="filterBtn">Filter</button>
+                </form>
+            </div>
+
+            <p class="mb-0">
+                <button type="button" class="btn btn-success btn-sm bi bi-file-earmark-pdf" id="exportPdfBtn">
+                    PDF</button>
+                <button type="button" class="btn btn-success btn-sm bi bi-file-earmark-word" id="exportWordBtn">
+                    Word</button>
+                <button type="button" class="btn btn-success btn-sm bi bi-printer" id="printBtn"> Print</button>
+            </p>
+
+        </div>
+
+
+
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                
+                <div class="d-flex gap-2 justify-content-start align-items-center  px-3 py-2">
+                    
+                   <div class="justify-content-start rows"> <h5 class="card-title bi bi-journal-text fs-5 text-success">Total E-Resources: {{ total_eresources }}</h5></div>
+                    <div class="justify-content-start rows"><p class="card-text">This report provides an overview of the total number of e-resources available in the system.</p></div>
+                </div>
+
+
+                <div class="justify-content-end align-items-center border border-subtle rounded-3 px-3 py-2 gap-2 d-flex">
+
+                    <label class="label">Filter: </label>
+
+                    <div class="dropdown">
+                        <button class="btn sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel"></i>
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li>
+                                <p  class="dropdown-item text-muted text-center mb-0">
+                                     Filter by Type
+                                     <hr>
+                                <p>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item">
+                                    <i class="bi bi-filter"></i> E-Books
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item">
+                                    <i class="bi bi-filter"></i> E-Journals
+                                </a>
+                            </li>
+                        </ul>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+<hr>
+            <div class="table-responsive mt-4">
+                <table id="eresourcesReportTable" class="table table-bordered table-hover align-middle mb-0 datatable">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Author</th>
+                            <th>Publisher</th>
+                            <th>Uploaded Date</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if myResourcesList %}
+                        {% for resource in myResourcesList %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ resource.title }}</td>
+                            <td>{{ resource.resource_type }}</td>
+                            <td>{{ resource.author or 'N/A' }}</td>
+                            <td>{{ resource.publisher or 'N/A' }}</td>
+                            <td>{{ resource.uploaded_date.strftime('%Y-%m-%d %I:%M %p') if resource.uploaded_date else
+                                'N/A' }}</td>
+
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm  px-3 dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                                        <li>
+                                            <a href="#" data-url="{{ url_for('eresources.eresources_analytics', id=resource.id) }}" class="dropdown-item ajax-link">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a href="#" class="dropdown-item">
+                                                <i class="bi bi-download"></i> Download
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a href="#" class="dropdown-item">
+                                                <i class="bi bi-trash"></i> Archive
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No e-resources found for the selected date
+                                range.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle AJAX link clicks
+    document.querySelectorAll('.ajax-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('data-url');
+            if (url) {
+                // Check if we're in an AJAX context (inside ajax-page-content)
+                const ajaxContainer = document.getElementById('ajax-page-content');
+                if (ajaxContainer) {
+                    // Use the existing loadAjaxContent function from eresourcesAdmin.html
+                    if (typeof loadAjaxContent === 'function') {
+                        loadAjaxContent(url);
+                    } else {
+                        // Fallback: load content directly
+                        loadAjaxContentDirect(url, ajaxContainer);
+                    }
+                } else {
+                    // Not in AJAX context, navigate normally
+                    window.location.href = url;
+                }
+            }
+        });
+    });
+
+    // Fallback AJAX loading function
+    function loadAjaxContentDirect(url, container) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success"></div>
+                <p class="mt-2">Loading...</p>
+            </div>
+        `;
+
+        fetch(url, {
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            credentials: 'same-origin'
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return null;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return response.text();
+            })
+            .then(html => {
+                if (html === null) return;
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading content:', error);
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Failed to load content. Please try again.
+                    </div>
+                `;
+            });
+    }
+});
+</script>
+
+{% endblock %}

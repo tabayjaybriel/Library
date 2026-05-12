@@ -1,0 +1,101 @@
+{% extends "header/base.html" %}
+{% block content %}
+
+
+<div class="container mb-4">
+
+    <table id="tableListofEresources" class="table table-striped table-bordered table-hover">
+        <thead class="bg-success text-white">
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Subject</th>
+                <th>Author</th>
+                <th>Published</th>
+                <!-- <th>Action</th> -->
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for eresource in list_of_eresourcesDashboard %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ eresource.title | default('N/A') }}</td>
+                <td>{{ eresource.resource_type | default('N/A') }}</td>
+                <td>{{ eresource.subject | default('N/A') }}</td>
+                <td>{{ eresource.author | default('Unknown') }}</td> {# Aligned with header #}
+                <td>{{ eresource.year | default('N/A') }}</td> {# Aligned with header #}
+                <!-- <td>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button"
+                            id="dropdownMenuButton{{ eresource.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ eresource.id }}">
+                            <li>
+                                <button class="btn btn-sm dropdown-item edit-btn" data-bs-toggle="modal"
+                                    data-bs-target="#editModal" data-resource-id="{{ eresource.id }}">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-sm dropdown-item action-btn-table-delete" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal" data-resource-id="{{ eresource.id }}">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('static', filename=eresource.file_path) }}" target="_blank"
+                                    class="btn btn-sm dropdown-item">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td> -->
+            </tr>
+            {% endfor %}
+            
+           
+        </tbody>
+    </table>
+
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        var table = $('#tableListofEresources').DataTable({
+            responsive: true,
+            paging: true,
+            searching: true,
+            info: true,
+            order: [[1, 'asc']]
+        });
+
+
+        function filterTableByType(type) {
+            if (type === 'all') {
+
+                table.column(2).search('').draw();
+            } else {
+
+                table.column(2).search('^' + type + '$', true, false).draw();
+            }
+        }
+
+
+        $('input[name="filter"]').on('change', function () {
+            var selectedType = $(this).val();
+            filterTableByType(selectedType);
+        });
+
+        // Initial filter call (to ensure 'All' is applied on load)
+        filterTableByType('all');
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,123 @@
+{% block content %}
+<style>
+    /* Ensure dropdowns can overflow the table and card containers */
+    .card, .table-responsive, .dataTables_wrapper, .dataTables_scrollBody {
+        overflow: visible !important;
+    }
+    
+    /* Prevents the table row from creating a new stacking context that clips the menu */
+    /* td {
+        position: relative;
+    } */
+
+    /* 3. Style the status badges for better visibility */
+    /* .status-badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        border-radius: 50rem;
+        display: inline-block;
+    }
+
+    .dropdown-menu {
+        z-index: 9999 !important;
+    } */
+</style>
+<div class="container-fluid bg-subtle p-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-0 border-bottom pb-2">
+
+        <p class="mb-0 fs-5"> <strong> Results for:</strong> "{{ query }}"</p>
+
+        <p class="mb-0 fs-5"> <strong>Found(s): </strong> {{ results|length }}</p>
+
+    </div>
+
+
+
+    <div class="card border-1 mb-4 p-2 mt-2">
+
+        <table class="table datatable align-middle mb-0 table-hover w-100">
+            <thead>
+                <tr class="bg-light">
+                    <th></th>
+                    <th>Author</th>
+                    <th class="text-center">Title</th>
+
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if results %}
+                {% for thesis in results %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+
+                    <td>{{ thesis.last_name }}, {{ thesis.first_name }} </td>
+                    <td>{{ thesis.title }}</td>
+                    <td class=" 
+                                {% if thesis.thesis_status == 1 %} bg-warning-subtle text-warning
+                                {% elif thesis.thesis_status == 2 %} bg-secondary-subtle text-secondary
+                                {% elif thesis.thesis_status == 3 %} bg-danger-subtle text-dark
+                                {% else %} bg-success-subtle text-success
+                                {% endif %}">
+
+                        {% if thesis.thesis_status == 1 %} New
+                        {% elif thesis.thesis_status == 2 %} Archived
+                        {% elif thesis.thesis_status == 3 %} Pending Admin
+                        {% else %} Published
+                        {% endif %}
+
+                    </td>
+
+
+                    <td class=" d-flex justify-content-center gap-2">
+                        <!-- dropdown-center can help if menus hit the right edge -->
+                        <!-- <div class="dropdown">
+                            <button class="btn btn-light btn-sm border" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li> -->
+                                    <!-- <h6 class="dropdown-header">Manage Thesis</h6>
+                                </li>
+                                <li> -->
+                                    <form method="POST"
+                                        action="{{ url_for('informationDesk.post_thesis', thesis_id=thesis.id) }}">
+                                        <button type="submit" class="btn btn-light btn-sm border">
+                                            <i class="bi bi-cloud-upload me-2 text-primary"></i>Post
+                                        </button>
+                                    </form>
+                                <!-- </li>
+                                <li> -->
+                                    <form method="POST"
+                                        action="{{ url_for('informationDesk.archiveThesis', thesis_id=thesis.id) }}">
+                                        <button type="submit" class="btn btn-light btn-sm border">
+                                            <i class="bi bi-archive me-2 text-secondary"></i>Archive
+                                        </button>
+                                    </form>
+                                <!-- </li>
+                            </ul>
+                        </div> -->
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="bi bi-folder2-open fs-1 opacity-25 d-block mb-3"></i>
+                            No results found.
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

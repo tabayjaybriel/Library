@@ -1,0 +1,36 @@
+
+
+    {% block content %}
+    <div class="container my-4">
+        <h1 class="mb-4">Search Results for: "<span class="text-primary">{{ query }}</span>"</h1>
+
+        {% if results %}
+        <div class="row">
+            {% for thesis in results %}
+            <div class="col-md-3 mb-4"> 
+                <div class="card h-100 shadow-sm">
+                    
+                    <div class="card-body d-flex flex-column"> 
+                        <h5 class="card-title fw-bold">{{ thesis.title }}</h5>
+                        <hr>
+                        <p class="card-text small text-muted">By: {{ thesis.first_name }} {{ thesis.last_name }}</p>
+                        <p class="card-text small text-muted">Course: {{ thesis.course }}</p>
+                        <p class="card-text small text-muted">Copyright: {{ thesis.copyright_yy }}</p>
+                       
+                        <div class="mt-auto text-center"> {# mt-auto pushes button to bottom #}
+                            <a href="{{ url_for('thesis_detail', thesis_id=thesis.id) }}"
+                                class="btn btn-primary btn-sm"><i class="bi bi-search"></i> Download</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            <p class="mb-0">No results found for "{{ query }}". Try a different search term.</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endblock %}

@@ -1,0 +1,197 @@
+{% block content %}
+
+<div class="container-fluid py-4">
+    <!-- User Profile Summary Header -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <div class="col-md-auto bg-success d-flex align-items-center justify-content-center p-4"
+                    style="min-width: 120px;">
+                    <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm fw-bold fs-2"
+                        style="width: 70px; height: 70px;">
+                        {{ target_user.user_userName[0] | upper }}
+                    </div>
+                </div>
+                <div class="col p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h4 class="fw-bold mb-1 text-dark">{{ target_user.user_fullName or target_user.user_userName
+                                }}</h4>
+                            <p class="text-muted mb-0">
+                                <span class="badge bg-light text-dark border me-2">ID: {{ target_user.id }}</span>
+                                <span class="text-secondary small"><i class="bi bi-person me-1"></i>Username: @{{
+                                    target_user.user_userName }}</span>
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted small fw-bold d-block mb-2 text-uppercase letter-spacing-1">Export
+                                Data</span>
+                            <div class="btn-group shadow-sm">
+                                <button type="button" class="btn btn-white border btn-sm"
+                                    onclick="exportTableToExcel('user_analyticActivity', '{{ target_user.user_userName }}_report')">
+                                    <i class="bi bi-file-earmark-excel text-success me-1"></i> Excel
+                                </button>
+                                <button type="button" class="btn btn-white border btn-sm"
+                                    onclick="exportTableToWord('user_analyticActivity')">
+                                    <i class="bi bi-file-earmark-word text-primary me-1"></i> Word
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+
+
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <form method="get" action="{{ url_for('analytics.user_analyticReport', user_id=target_user.id) }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Date Range
+                            Selection</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="bi bi-calendar-range text-muted"></i></span>
+                            <input type="date" name="start_date" class="form-control border-start-0"
+                                value="{{ start_date }}">
+                            <span class="input-group-text bg-light border-start-0 border-end-0">to</span>
+                            <input type="date" name="end_date" class="form-control border-start-0"
+                                value="{{ end_date }}">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Group By Frequency</label>
+                        <select name="resourceFilter" class="form-select shadow-sm">
+                            <option value="Daily" {% if current_filter=='Daily' %}selected{% endif %}>Daily View
+                            </option>
+                            <option value="Monthly" {% if current_filter=='Monthly' %}selected{% endif %}>Monthly
+                                Summary</option>
+                            <option value="Yearly" {% if current_filter=='Yearly' %}selected{% endif %}>Yearly
+                                Overview
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <button type="submit"
+                            class="btn btn-dark w-100 fw-bold shadow-sm py-2 mt-2 mt-lg-0 btn-submitdate">
+                            <i class="bi bi-filter me-2"></i>Update Results
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Analytics Table Results -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Activity Log
+            </h5>
+        </div>
+
+        <main id="analytics-result-container" class=" flex-grow-1 p-4 shadow-sm bg-light">
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="user_analyticActivity">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 border-0 text-muted small text-uppercase" style="width: 60px;">#
+                                </th>
+                                <th class="py-3 border-0 text-muted small text-uppercase">Time Period</th>
+                                <th class="text-center py-3 border-0 text-muted small text-uppercase">Thesis Views</th>
+                                <th class="text-center py-3 border-0 text-muted small text-uppercase">Thesis DLs</th>
+                                <th class="text-center py-3 border-0 text-muted small text-uppercase">E-Res Views</th>
+                                <th class="text-center py-3 border-0 text-muted small text-uppercase">E-Res DLs</th>
+                                <th class="text-center py-3 border-0 fw-bold text-dark small text-uppercase pe-4">Total
+                                    Engagement</th>
+                                <th class="text-center py-3 border-0 text-muted small text-uppercase"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in analytics_data %}
+                            <tr>
+                                <td class="ps-4 text-muted small">{{ loop.index }}</td>
+                                <td class="fw-bold text-dark">{{ row.period }}</td>
+                                <td class="text-center">
+                                    <span class="px-2 py-1 rounded bg-light border small text-dark">{{
+                                        row.thesis_views|int
+                                        }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="px-2 py-1 rounded bg-light border small text-dark">{{
+                                        row.thesis_downloads|int }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="px-2 py-1 rounded bg-light border small text-dark">{{
+                                        row.eresource_views|int }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="px-2 py-1 rounded bg-light border small text-dark">{{
+                                        row.eresource_downloads|int }}</span>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div
+                                        class="badge bg-primary-subtle text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold">
+                                        {{ row.thesis_views + row.thesis_downloads + row.eresource_views +
+                                        row.eresource_downloads }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="dropdown">
+
+                                        <button class="btn btn-light btn-sm rounded-circle" type="button"
+                                            data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                            <li><a class="dropdown-item" href="#"><i
+                                                        class="bi bi-info-circle me-2"></i>Details</a></li>
+                                            <!-- href="{{ url_for('analytics.user_analyticReport', user_id=target_user.id, start_date=start_date, end_date=end_date, resourceFilter=current_filter) }}"> -->
+                                            <li>
+                                                <a class="dropdown-item btn-userActivityFilter" href="#" 
+                                                   data-target="#analytics-result-container"
+                                                   data-url="{{ url_for(
+                                                        'analytics.analytics_userDailyAnalytics',
+                                                        user_id=target_user.id,
+                                                        date=row.period
+                                                ) }}">
+                                                    <i class="bi bi-eye me-2"></i>View Activity
+                                                </a>
+
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="bi bi-clipboard-x fs-1 opacity-25 d-block mb-3"></i>
+                                        No user activity recorded for the selected criteria.
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</div>
+
+
+{% endblock %}

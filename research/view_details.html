@@ -1,0 +1,92 @@
+
+
+
+{% block content %}
+<style>
+    :root {
+        --cmu-maroon: #006400;
+        --cmu-gold: #FFC82E;
+        --light-gray: #f8f9fa;
+    }
+
+    .details-header {
+        color: var(--cmu-maroon);
+        border-bottom: 3px solid var(--cmu-gold);
+        padding-bottom: 0.5rem;
+    }
+
+    .details-card {
+        border-left: 5px solid var(--cmu-maroon);
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #6c757d;
+        /* Muted text color */
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1.1rem;
+        color: #343a40;
+    }
+
+    .back-btn {
+        border-radius: 50px;
+        font-weight: 500;
+    }
+</style>
+
+<div class="container-fluid py-5">
+    <div class="d-flex justify-content-between align-items-center details-header mb-4">
+        
+        <h4 class="fw-bold">
+            <i class="bi bi-file-text-fill me-2"></i>
+            Thesis Details
+        </h4>
+        <a href="{{ url_for('auth.researchPortal')}}" class="btn btn-md btn-outline-success back-btn px-4 ajax-research-link">
+            <i class="bi bi-arrow-left me-2"></i> Back
+        </a>
+        
+    </div>
+
+    {% if details %}
+    <div class="card details-card p-4 rounded-3 bg-white">
+        <div class="card-body">
+            <div class="row g-4">
+                <!-- Thesis Title -->
+                <div class="col-12">
+                    <span class="detail-label">Thesis Title</span>
+                    <h3 class="detail-value fw-bold text-primary">{{ details[0].title }}</h3>
+                </div>
+                <hr class="my-3">
+                <!-- Student Information -->
+                <div class="col-md-6">
+                    <span class="detail-label">Submitted By (Student)</span>
+                    <p class="detail-value"><i class="bi bi-person-fill me-2 text-success"></i>{{ details[1].user_fullName }}</p>
+                </div>
+                <!-- Subject Information -->
+                <div class="col-md-6">
+                    <span class="detail-label">Subject Code</span>
+                    <p class="detail-value"><i class="bi bi-journal-code me-2 text-success"></i>{{ details[2].subjectID }}</p>
+                </div>
+                <div class="col-md-6">
+                    <span class="detail-label">Subject Description</span>
+                    <p class="detail-value"><i class="bi bi-card-text me-2 text-success"></i>{{ details[2].courseDescription }}</p>
+                </div>
+                <!-- Teacher/Adviser Information -->
+                <div class="col-md-6">
+                    <span class="detail-label">Adviser/Teacher</span>
+                    <p class="detail-value"><i class="bi bi-person-video3 me-2 text-success"></i>{{ details[3].user_fullName }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-danger">Details for this thesis could not be found.</div>
+    {% endif %}
+</div>
+{% endblock %}

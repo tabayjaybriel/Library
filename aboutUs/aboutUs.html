@@ -1,0 +1,139 @@
+{% extends "header/base.html" %}
+
+{% block title %}About Us - CMU Library Thesis System{% endblock %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar-aboutus">
+        <a class="nav-link active" href="{{ url_for('auth.aboutus') }}" data-section="home">
+            <i class="bi bi-house-door me-2"></i> Home
+        </a>
+
+        <a class="nav-link" href="{{url_for('home')}}" data-section="search">
+            <i class="bi bi-search me-2"></i> Search
+        </a>
+
+        <a class="nav-link" href="#" data-section="thesisSubmission">
+            <i class="bi bi-upload me-2"></i> Thesis Submission
+        </a>
+
+        <a class="nav-link" href="#" data-section="contactUs">
+            <i class="bi bi-envelope me-2"></i> Contact Us
+        </a>
+
+        <a class="nav-link" href="#" data-section="faqs">
+            <i class="bi bi-question-circle me-2"></i> FAQs
+        </a>
+
+        <a class="nav-link" href="#" data-section="libraryPolicies">
+            <i class="bi bi-book me-2"></i> Library Policies
+        </a>
+
+        <a class="nav-link" href="#" data-section="staffDirectory">
+            <i class="bi bi-people me-2"></i> Staff Directory
+        </a>
+
+        <a class="nav-link" href="#" data-section="events">
+            <i class="bi bi-calendar me-2"></i> Events
+        </a>
+
+        <a class="nav-link" href="#" data-section="links">
+            <i class="bi bi-link"></i> Linkages Partners
+        </a>
+
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content-Aboutus">
+
+        <!-- Hero Section -->
+        <section class="hero-section mt-0">
+            <h1 class="cmu-white">Welcome to the Central Mindanao University Library</h1>
+            <p>Digitizing knowledge for easy access, research, and learning. Submit your thesis, explore resources, and
+                experience the library like never before.</p>
+        </section>
+
+        <!-- About Section -->
+        <div class="container" id="about-container">
+
+            <section class="section bg-white">
+                <div class="container">
+                    <h2>About the Library</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Digitization Initiative</h5>
+                                    <p>The CMU Library has embarked on a comprehensive digitization project to convert
+                                        theses,
+                                        dissertations, research papers, and other resources into digital format. This
+                                        allows
+                                        students and faculty to access materials anytime, anywhere, making research
+                                        faster,
+                                        easier, and more convenient.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Easy Access for Students</h5>
+                                    <p>Students can explore the library’s digital collection through the online portal,
+                                        search
+                                        by author, course, or keyword, and download materials needed for study and
+                                        research.
+                                        The library ensures accessibility while maintaining the integrity of its
+                                        resources.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Thesis Submission Section -->
+            <section class="section bg-light">
+                <div class="container">
+                    <h2>Thesis Submission</h2>
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Submit Your Thesis</h5>
+                                    <p>Students are encouraged to submit their completed theses through the library
+                                        portal.
+                                        Once a
+                                        thesis is submitted, it officially becomes part of the CMU University Library's
+                                        collection and is considered the property of the library. This ensures that
+                                        knowledge is
+                                        preserved, organized, and accessible to all future students and researchers.</p>
+                                    <p>The submission process is simple: fill out the required form, upload your PDF
+                                        document,
+                                        and confirm the details. After verification, your thesis is added to the digital
+                                        archive.</p>
+                                </div>
+                                <footer class="card-footer text-end">
+                                    <button class="btn btn-success mt-3">Read More</button>
+                                </footer>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <!-- <footer class="footer">
+        </footer> -->
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}

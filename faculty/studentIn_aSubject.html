@@ -1,0 +1,334 @@
+{% extends "header/base.html" %}
+{% block title %}Students in {{ subject.courseDescription }}{% endblock %}
+
+{% block content %}
+<!-- DataTables Buttons CSS -->
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-2.0.8/r-3.0.2/datatables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css"> -->
+
+<!--  -->
+
+<div class="fluid-container py-5">
+
+    <!-- Header Section -->
+    <!-- <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="cmu-section-header p-0 mb-1"><i class="bi bi-speedometer2 me-2"></i>Faculty Dashboard</h1>
+        </div>
+    </div> -->
+    <!-- Header Section -->
+
+    <div class="d-flex justify-content-end mb-3 col-12 col-md-12 gap-2">
+        <!-- Using btn-success which is redefined in CSS to be CMU Maroon -->
+        <a href="{{ url_for('auth.facultyPortal') }}" class="btn btn-success rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 cmu-section-header">
+        
+        <h3 class="page-header-heading mb-0">
+            <i class="bi bi-people-fill me-2"></i>
+            List of Students: <strong>{{ subject.courseDescription }}</strong>
+        </h3>
+    </div>
+
+    <!-- Flash Messages -->
+    <div class="mb-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Table Card -->
+    <div class="cmu-card-container">
+        
+        <div class="d-flex justify-content-end mb-3 col-12 col-md-12 gap-2">
+             <a class="btn btn-success rounded-pill px-4 btn-lg" id="exportToExcelBtn">
+                <i class="bi bi-file-earmark-excel-fill me-1"></i> Export
+             </a>
+
+             <a class="btn btn-success rounded-pill px-4 btn-lg" id="printBtn">
+                <i class="bi bi-printer-fill me-1"></i> Print
+             </a>
+        </div>
+            <hr>
+
+        {% if listofStudentinSubject %}
+        
+        <div>
+            <table id="studentinSubject" class="table table-hover table-sm  w-100 p-2">
+                <thead>
+                    <tr class="text-center">
+                        <th>#</th>
+                        <th class="text-center">Full Name</th>
+                        <th class="text-center">Thesis Title</th>
+                        <th>Status & Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in listofStudentinSubject %}
+
+                    {% set status_text = "Pending" %}
+                    {% if item.thesis_details.teacherStatus == 2 %}
+                    {% set status_text = "Approved" %}
+                    {% elif item.thesis_details.teacherStatus == 0 %}
+                    {% set status_text = "Denied" %}
+                    {% endif %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td>{{ item.student_details.user_fullName }}</td>
+                        <td>
+                            <strong class="text-secondary">{{ item.thesis_details.title }}</strong>
+                        </td>
+                        <td class="text-center">
+                            <!-- Hidden span for filtering -->
+                            <span class="d-none">{{ status_text }}</span>
+
+                            {% if status_text == "Approved" %}
+                            <span class="badge bg-success py-2 px-3 fw-bold">
+                                <i class="bi bi-check-circle-fill me-1"></i> Approved
+                            </span>
+
+                            {% elif status_text == "Denied" %}
+                            <span class="badge bg-danger py-2 px-3 fw-bold">
+                                <i class="bi bi-x-octagon-fill me-1"></i> Denied
+                            </span>
+
+                            {% else %}
+
+                            <!-- Dropdown for Pending Actions -->
+                            <div class="dropdown d-inline">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    id="actionDropdown{{ item.thesis_details.id }}" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Actions
+                                </button>
+
+                                <ul class="dropdown-menu text-start"
+                                    aria-labelledby="actionDropdown{{ item.thesis_details.id }}">
+                                    
+                                    <!-- Approve - NOW USES MODAL TRIGGER -->
+                                    <li>
+                                        <button type="button" class="dropdown-item text-success fw-semibold"
+                                            data-bs-toggle="modal" data-bs-target="#approveThesisModal"
+                                            data-thesis-id="{{ item.thesis_details.id }}"
+                                            data-thesis-title="{{ item.thesis_details.title }}">
+                                            <i class="bi bi-check-lg me-2"></i> Approve
+                                        </button>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <!-- Deny - NOW USES MODAL TRIGGER -->
+                                    <li>
+                                        <button type="button" class="dropdown-item text-danger fw-semibold"
+                                            data-bs-toggle="modal" data-bs-target="#denyThesisModal"
+                                            data-thesis-id="{{ item.thesis_details.id }}"
+                                            data-thesis-title="{{ item.thesis_details.title }}">
+                                            <i class="bi bi-x-lg me-2"></i> Deny
+                                        </button>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <!-- Find Similarities (disabled for now) -->
+                                    <li>
+                                        <button type="button" class="dropdown-item text-info fw-semibold" disabled>
+                                            <i class="bi bi-search me-2"></i> Find Similarities
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center m-4" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i> No students have submitted thesis titles for this subject yet.
+        </div>
+        {% endif %}
+
+    </div> <!-- End cmu-card-container -->
+
+</div>
+
+<!-- ✅ Approve Thesis Modal -->
+<div class="modal fade" id="approveThesisModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Updated header to use CMU Maroon color for success/approval -->
+            <div class="modal-header text-white" style="background-color: var(--cmu-maroon) !important;">
+                <h5 class="modal-title">Confirm Approval</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to **approve** the following thesis title?</p>
+                <p class="mb-0"><b>Thesis ID:</b> <span id="approveId" class="fw-bold"></span></p>
+                <p class="mb-0"><b>Title:</b> <span id="approveTitle" class="fst-italic"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <form id="approveForm" method="post" action="{{ url_for('faculty.approve_thesis') }}">
+                    <input type="hidden" name="thesis_id" id="approveThesisIdInput">
+                    <button type="submit" class="btn btn-success">Yes, Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Deny Thesis Modal -->
+<div class="modal fade" id="denyThesisModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Denial</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to **deny** the following thesis title? The student will be notified.</p>
+                <p class="mb-0"><b>Thesis ID:</b> <span id="denyId" class="fw-bold"></span></p>
+                <p class="mb-0"><b>Title:</b> <span id="denyTitle" class="fst-italic"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="denyForm" method="post" action="{{ url_for('faculty.deny_thesis') }}">
+                    <input type="hidden" name="thesis_id" id="denyThesisIdInput">
+                    <button type="submit" class="btn btn-danger">Yes, Deny</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    </div>
+</div>
+
+
+
+<!-- Load jQuery (required by DataTables) -->
+<!-- <script src="https://code.jquery.com/jquery-3.7.1.js"></script> -->
+<!-- Load DataTables, Responsive, & Buttons JS with Bootstrap 5 integration -->
+<!-- <script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/r-3.0.2/datatables.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.min.js"></script> -->
+
+<!-- JS for Excel and Print functionality -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script>
+
+
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+
+<script>
+    $(document).ready(function () {
+        // Check if DataTables is loaded before initializing
+        if (!$.fn.DataTable) {
+            console.error("DataTables is not loaded! Check your CDN links.");
+            return;
+        }
+
+        // Initialize Datatables
+        var table = $('#studentinSubject').DataTable({
+            responsive: true,
+            layout: {
+                topStart: 'pageLength',
+                topEnd: 'search',
+                bottomStart: 'info',
+                bottomEnd: 'paging',
+
+                language: {
+                    search: "Search Students:",
+                    lengthMenu: "Show _MENU_ entries"
+                }
+            }
+
+
+        });
+
+        // Filter by status dropdown
+        $('#statusFilter').on('change', function () {
+            var status = $(this).val();
+            // Regex search: only search the start of the string to match the status text exactly
+            table.column(3).search(status ? '^' + status : '', true, false).draw();
+        });
+
+        // --- Modal Logic to capture data from the dropdown button ---
+
+        $('#approveThesisModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var thesisId = button.data('thesis-id');
+            var thesisTitle = button.data('thesis-title');
+            
+            // Set data in the modal
+            $(this).find('#approveId').text(thesisId);
+            $(this).find('#approveTitle').text(thesisTitle);
+            $(this).find('#approveThesisIdInput').val(thesisId);
+        });
+
+        $('#denyThesisModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var thesisId = button.data('thesis-id');
+            var thesisTitle = button.data('thesis-title');
+            
+            // Set data in the modal
+            $(this).find('#denyId').text(thesisId);
+            $(this).find('#denyTitle').text(thesisTitle);
+            $(this).find('#denyThesisIdInput').val(thesisId);
+        });
+
+
+        // Excel export button
+        $('#exportToExcelBtn').on('click', function () {
+            // Temporarily add and trigger the excel button, then remove it
+            table.button().add(0, {
+                extend: 'excelHtml5',
+                exportOptions: { columns: [0, 1, 2, 3] },
+                // Assuming you have a Jinja variable `subject` available
+                title: 'Student Submitted Thesis Titles - {{ subject.courseDescription | default("Current Subject") }}'
+            });
+            table.button(0).trigger();
+            table.button(0).remove();
+        });
+
+        // Print button
+        $('#printBtn').on('click', function () {
+            // Temporarily add and trigger the print button, then remove it
+            table.button().add(0, {
+                extend: 'print',
+                exportOptions: { columns: [0, 1, 2, 3] },
+                // Assuming you have a Jinja variable `subject` available
+                title: 'Student Submitted Thesis Titles - {{ subject.courseDescription | default("Current Subject") }}'
+            });
+            table.button(0).trigger();
+            table.button(0).remove();
+        });
+    });
+</script>
+
+
+{% endblock %}

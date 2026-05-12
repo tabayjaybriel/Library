@@ -1,0 +1,211 @@
+{% block content %}
+<style>
+    .history-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+
+    .activity-item {
+        padding: 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
+    .activity-item:hover {
+        background-color: #f8fafc;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+
+    .icon-view {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .icon-download {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .activity-details h6 {
+        margin-bottom: 2px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .activity-meta {
+        font-size: 0.75rem;
+        color: #64748b;
+        display: flex;
+        gap: 12px;
+    }
+
+    .timeline-label {
+        position: relative;
+        padding-left: 20px;
+        font-weight: 700;
+        color: #94a3b8;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        margin: 1.5rem 0 0.75rem 1.25rem;
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-0">
+        <div>
+            <h4 class="fw-bold mb-1 text-success"><i class="bi bi-clock-history"></i> Research History</h4>
+            <p class="text-muted small mb-0">Track the resources you have accessed and downloaded.</p>
+        </div>
+
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('auth.profile') }}"><i class="bi bi-house me-2"></i>
+
+        </a>
+
+    </div>
+
+    <!-- Activity List Section -->
+    <div class="history-card bg-white p-4 border border-subtle">
+
+        <div class="col-lg-12 d-flex justify-content-end mb-2">
+            <div class="btn-group shadow-sm">
+                <button type="button"
+                    class="btn btn-outline-secondary btn-sm rounded-start-3 px-3 active activity-filter-btn"
+                    data-filter="all">All</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3 activity-filter-btn"
+                    data-filter="view">Views</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-end-3 px-3 activity-filter-btn"
+                    data-filter="download">Downloads</button>
+            </div>
+        </div>
+
+        <hr class="my-2 border border-dark">
+
+
+        {% if activities %}
+        {% for activity in activities %}
+        <!-- Timeline group logic would go here in Python/Jinja -->
+        <div class="activity-item d-flex justify-content-between align-items-center"
+            data-activity-type="{{ activity.activity_type }}">
+            <div class="d-flex align-items-center">
+                <!-- Dynamic Icon based on activity_type (view/download) -->
+                <div class="activity-icon {{ 'icon-view' if activity.activity_type == 'view' else 'icon-download' }}  me-3 border border-subtle border-1 shadow-sm p-2 rounded-2">
+                    <i
+                        class="bi {{ 'bi-eye-fill' if activity.activity_type == 'view' else 'bi-cloud-download-fill' }}"></i>
+                </div>
+                <div class="activity-details">
+                    <!-- Title from either thesis or e-resource join -->
+                    <h6>{{ activity.resource_title }}</h6>
+                    <div class="activity-meta">
+                        <div>
+                        <span>
+                            Type: <i
+                                class="bi {{ 'bi-file-earmark-text' if activity.source == 'thesis' else 'bi-book' }} me-1"></i>
+                            {{ activity.source | capitalize }}
+                        </span>
+                        </div>
+
+                        <div>
+                         Access: <span><i class="bi bi-clock me-1"></i> {{ activity.activity_date.strftime('%b %d, %Y %I:%M %p')
+                            }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            {% if activity.activity_type == 'view' %}
+            <a href="{{ activity.view_url }}" class="btn btn-sm btn-light border rounded-pill px-3">Revisit</a>
+            {% else %}
+            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">Downloaded</span>
+            {% endif %}
+        </div>
+        <hr class="my-0">
+        {% endfor %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center p-5">
+            <i class="bi bi-journal-x fs-1 text-muted opacity-25"></i>
+            <p class="text-muted mt-2">No research activity recorded yet.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Highlight the "My Activity" button in the sidebar
+        const activityLink = document.querySelector('.ajax-profile-link[href="{{ url_for('personnel.user_history') }}"]');
+        if (activityLink) {
+            activityLink.classList.add('active');
+        }
+    });
+
+
+    // Self-contained logic for filtering
+    (function () {
+        function initFilters() {
+            const filterButtons = document.querySelectorAll('.activity-filter-btn');
+            const items = document.querySelectorAll('.activity-item');
+
+            if (filterButtons.length === 0) return;
+
+            function setActiveButton(activeButton) {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                activeButton.classList.add('active');
+            }
+
+            function filterHistory(type) {
+                items.forEach(item => {
+                    const activityType = item.getAttribute('data-activity-type');
+                    if (type === 'all' || activityType === type) {
+                        item.style.setProperty('display', 'flex', 'important');
+                    } else {
+                        item.style.setProperty('display', 'none', 'important');
+                    }
+                });
+            }
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const type = this.getAttribute('data-filter');
+                    setActiveButton(this);
+                    filterHistory(type);
+                });
+            });
+        }
+
+        // Initialize on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFilters);
+        } else {
+            initFilters();
+        }
+    })();
+</script>
+
+
+
+
+{% endblock %}

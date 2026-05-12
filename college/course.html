@@ -1,0 +1,115 @@
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header Section -->
+    <div class="mb-4 text-center">
+        <h1 class="fw-bold text-dark display-6 mb-1">Academic Offerings</h1>
+        <p class="text-muted small text-uppercase letter-spacing-1">Course Catalog Management</p>
+    </div>
+
+    
+        <hr>
+        <div class="card-body p-4">
+            <!-- Data Table Container -->
+            <div class="table-responsive">
+                <table id="listofCourse" class="table table-hover align-middle w-100">
+                    <thead class="table-thead-custom">
+                        <tr>
+                            <th class="text-center" style="width: 50px;">#</th>
+                            <th data-priority="1">Course Name</th>
+                            <th data-priority="2">Major</th>
+                            <th class="text-center" data-priority="1">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in listofCourse %}
+                        <tr>
+                            <td class="text-center small text-muted fw-bold">{{ loop.index }}</td>
+                            <td class="fw-bold text-dark">{{ course.courseName }}</td>
+                            <td>
+                                {% if course.major %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary border-opacity-10 rounded-pill px-3">
+                                    {{ course.major }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary-subtle text-muted rounded-pill px-3 small">
+                                    General / No Major
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm btn-light border rounded-pill px-3 dropdown-toggle shadow-sm" type="button"
+                                        id="courseActionMenu{{ course.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" aria-labelledby="courseActionMenu{{ course.id }}">
+                                        <li>
+                                            <button type="button" class="dropdown-item py-2" data-bs-toggle="modal" data-bs-target="#editCourseModal{{ course.id }}">
+                                                <i class="bi bi-pencil-square me-2 text-success"></i> Edit
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item py-2 text-danger">
+                                                <i class="bi bi-trash me-2"></i> Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if not listofCourse %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <div class="mb-2"><i class="bi bi-inbox fs-1 opacity-25"></i></div>
+                                No courses currently available. Please use the "Add New Course" button to begin.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- End Data Table Container -->
+        </div>
+    </div>
+
+    <!-- Modals for Add/Edit -->
+    <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header cmu-green-header p-4 text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">Add Course Form</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted">Course creation form would be implemented here using your course fields.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DataTables Initialization
+        $(document).ready(function () {
+            if (!$.fn.DataTable.isDataTable('#listofCourse')) {
+                $('#listofCourse').DataTable({
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    responsive: true,
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "Search courses..."
+                    },
+                    columnDefs: [
+                        { orderable: false, targets: 3 }
+                    ]
+                });
+            }
+        });
+    </script>
+</div>
+{% endblock %}

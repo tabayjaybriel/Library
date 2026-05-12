@@ -1,0 +1,676 @@
+{% extends "header/base.html" %}
+
+{% block content %}
+<!-- External DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+<!-- External tom-select CSS (Corrected position and tag type) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css">
+<!-- Ensure we use Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<style>
+    :root {
+        --cmu-maroon: #0c8658;
+        --primary-color: #043f2b;
+        /* Bootstrap Primary Blue */
+        --success-color: #28a745;
+        /* Bootstrap Success Green */
+        --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        /* Soft Shadow */
+    }
+
+    .status-card .card-header {
+        background-color: var(--cmu-maroon);
+        color: white;
+        font-weight: 700;
+        padding: 0.75rem 1.25rem;
+        border-bottom: none;
+    }
+
+    .dashboard-header {
+        color: var(--cmu-maroon);
+        font-weight: 800;
+        border-bottom: 3px solid var(--cmu-gold);
+        /* Gold underline for elegance */
+        padding-bottom: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* General Body Padding */
+    .container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    /* Card Styling */
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+        /* Rounded corners */
+        box-shadow: var(--shadow);
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .stat-card h5 {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+    }
+
+    /* Button Styling */
+    .action-btn,
+    .modal-footer button {
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+
+    /* Table Styling */
+    #mythesislist {
+
+        overflow: hidden;
+        /* Ensures table corners are rounded with the container */
+    }
+
+    #mythesislist thead {
+        background-color: var(--cmu-maroon);
+        color: rgb(143, 32, 32);
+    }
+
+    /* Fix dropdown z-index for DataTables */
+    .dropdown-menu {
+        z-index: 2000 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.175);
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+    }
+
+    /* Ensure dropdowns within DataTables are not clipped */
+    #mythesislist .dropdown {
+        position: relative; /* Create a positioning context for the dropdown menu */
+    }
+    .table{
+        overflow: hidden;
+    }
+
+     .table-responsive {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        
+    }
+
+     table.dataTable {
+        overflow: visible !important;
+    }
+
+
+
+    .dataTables_wrapper {
+        overflow: visible !important;
+    }
+</style>
+
+
+
+<div class="container-fluid">
+
+    <!-- Masthead Section -->
+    <div class="card border-0 mb-4  bg-dark text-white overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #014d24 0%, #146c43 100%); 
+            border-radius: 0 0 1rem 1rem;
+            border-bottom: 4px solid rgba(255, 255, 255, 0.2); /* Adjust color/thickness here */">
+
+        <div class="card-body p-2 text-center position-relative">
+            <div class="position-relative z-1 mt-5 mb-2">
+                <h1 class="display-5 fw-bold mb-0">Research Management Portal</h1>
+                <p class="lead opacity-75 text-warning fw-bold mb-0">Central Mindanao University Repository Information
+                    System</p>
+                <p class="fs-sm text-warning fw-bold">University Town, Musuan, Maramag, Bukidnon, Region X, Philippines,
+                    8710</p>
+            </div>
+
+            <!-- Decorative Icon Background -->
+            <i class="bi bi-mortarboard position-absolute opacity-10"
+                style="font-size: 8rem; right: 2rem; top: 60%; transform: translateY(-50%); pointer-events: none;"></i>
+        </div>
+    </div>
+
+
+
+
+    <!-- Statistics Section -->
+    <div class="row mb-0 g-4">
+        <div class="col-md-4">
+            <div class="card stat-card bg-success bg-opacity-10 border border-subtle">
+                <h5><i class="bi bi-bar-chart-line-fill"></i> THESES UPLOADED</h5>
+                <p class="text-success">{{ thesis_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card bg-info bg-opacity-10 border border-subtle">
+                <h5><i class="bi bi-eye-fill text-info"></i> TOTAL VIEWS</h5>
+                <p class="text-info">{{ total_views }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card bg-success bg-opacity-10 border border-subtle">
+                <h5><i class="bi bi-download text-success"></i> TOTAL DOWNLOADS</h5>
+                <p class="text-success">{{ total_downloads }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Header Card -->
+    <div class="container-fluid py-4">
+        <div class="user-welcome-card shadow-sm px-2 py-1 d-flex justify-content-between rounded-3 bg-light align-items-center border border-subtle">
+            <div class="d-flex align-items-center">
+                <!-- User Icon refresh the page when clicked -->
+
+                <i class="bi bi-person-circle fs-1 me-3 text-success"></i>
+
+                <div>
+                    <h3 class="fw-bold mb-0 text-success">Welcome, {{ user.user_fullName }}!</h3>
+                    <p class="text-muted small mb-0">Your personalized research dashboard.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 ajax-profile-link"
+                    href="{{url_for('personnel.user_history')}}">
+                    <i class="bi bi-backpack4-fill"></i> My Activity
+                </a>
+                <!-- <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editInformation">
+                    <i class="bi bi-gear-fill"></i>
+                </button> -->
+                <a class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 ajax-profile-link"
+                    href="{{url_for('personnel.profile_settings')}}">
+                   <i class="bi bi-person-gear"></i>
+                    Profile
+                    
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- </div> -->
+
+    <!-- <div class="d-flex align-items-center justify-content-end gap-3">
+                <i class="bi bi-backpack4-fill text-success fs-2"></i>
+                <a id="myActivityLink" href="{{url_for('personnel.user_history')}}"
+                    class="text-success text-decoration-none">
+                    <h3 class="fw-bold mb-0">My Activity</h3>
+                </a>
+            </div> -->
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="alert-container mb-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category=='success' else 'danger' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Submitted Titles Section -->
+    <div class="container-fluid border border-subtle bg-body-secondary p-4 rounded-3" id="ajax-profileContent">
+
+        <div class="d-flex justify-content-between align-items-center mb-4  border-dark-light">
+            <h4 class="fw-bold mb-0 text-success">Submitted Thesis Titles</h4>
+            <!-- Button to submit a new title -->
+            <button type="button" class="btn btn-success action-btn d-flex align-items-center" data-bs-toggle="modal"
+                data-bs-target="#submitTitleModal">
+                <i class="bi bi-file-earmark-plus me-2"></i> Submit Title
+            </button>
+
+        </div>
+
+
+        <div class="border border-dark-light bg-white p-2 ">
+
+            <!-- Corrected Table Wrapper -->
+            <div class="table-responsive" style="overflow: visible !important;">
+                <table id="mythesislist" class="table table-hover w-100">
+                    <thead class="cmu-green">
+                        <tr>
+                            <th>#</th>
+                            <!-- <th>Index</th> -->
+                            <th>Title</th>
+                            <!-- <th>Admin</th>
+                            <th>Reading Room </th>
+                            <th> Control Number</th> -->
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in student_thesis_titles %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <!-- <td>{{ item.id }}</td> -->
+                            <td>{{ item.title }}</td>
+
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="border-0 btn-sm dropdown-toggle bg-transparent" type="button"
+                                        id="dropdownThesis{{ item.id }}" data-bs-toggle="dropdown"
+                                        data-bs-auto-close="true" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownThesis{{ item.id }}">
+                                        <li>
+                                            <a href="{{ url_for('listofthesis.addThesis', title=item.title, research_number=item.researchNumber) }}" 
+                                               class="dropdown-item ajax-profile-link">
+                                                <i class="bi bi-cloud-arrow-up me-2"></i> Upload
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+
+                                        <li>
+                                            <button class="dropdown-item edit-btn" data-bs-toggle="modal"
+                                                data-bs-target="#editThesisModal" data-thesis-id="{{ item.id }}"
+                                                data-thesis-title="{{ item.title }}">
+                                                <i class="bi bi-pencil-square me-2"></i> Edit
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+
+                                        <li>
+                                            <button class="dropdown-item action-btn-table-delete text-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteThesisModal"
+                                                data-thesis-id="{{ item.id }}" data-thesis-title="{{ item.title }}">
+                                                <i class="bi bi-trash me-2"></i> Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+
+                        </tr>
+
+
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Thesis Modal -->
+<div class="modal fade" id="editThesisModal" tabindex="-1" aria-labelledby="editThesisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="editThesisModalLabel"><i class="bi bi-pencil-square me-2"></i> Edit
+                    Thesis Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" method="post" action="">
+                    <div class="mb-3">
+                        <label for="thesisTitleInput" class="form-label fw-bold">New Thesis Title</label>
+                        <textarea class="form-control rounded-lg" id="thesisTitleInput" name="new_title" required
+                            rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-end p-0 pt-3 border-top-0">
+                        <!-- <button type="button" class="btn btn-outline-secondary action-btn"
+                            data-bs-dismiss="modal">Cancel</button> -->
+                        <button type="submit" class="btn btn-primary action-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteThesisModal" tabindex="-1" aria-labelledby="deleteThesisModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to delete this thesis? This action cannot be undone.</p>
+
+                <input type="hidden" id="thesis-id-delete">
+
+                <p class="alert alert-light border border-danger">
+                    <strong>Title:</strong> <span id="deleteThesisTitle" class="text-danger fw-bold"></span>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <form id="deleteForm" method="POST" action="">
+
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Yes, Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal edit information-->
+
+<div class="modal fade" id="editInformation" tabindex="-1" aria-labelledby="editInformationLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editInformationLabel"><i class="bi bi-pencil-square me-2"></i>
+                    Personal Information
+                </h5>
+
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form id="editInformationForm" method="post" action="">
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label fw-bold">First Name</label>
+                        <input type="text" class="form-control rounded-lg" id="firstName" name="firstName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label fw-bold">Last Name</label>
+                        <input type="text" class="form-control rounded-lg" id="lastName" name="lastName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="middleName" class="form-label fw-bold">Middle Name</label>
+                        <input type="text" class="form-control rounded-lg" id="middleName" name="middleName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <input type="email" class="form-control rounded-lg" id="email" name="email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contactNumber" class="form-label fw-bold">Contact Number</label>
+                        <input type="text" class="form-control rounded-lg" id="contactNumber" name="contactNumber"
+                            required>
+                    </div>
+
+                    <div class="modal-footer justify-content-end border-top-1 p-2">
+                        <button type="button" class="btn btn-outline-secondary action-btn"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success action-btn"><i class="bi bi-check-circle me-2"></i>
+                            Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Modal Submit Title  -->
+<div class="modal fade" id="submitTitleModal" tabindex="-1" aria-labelledby="submitTitleModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h1 class="modal-title fs-5" id="submitTitleModallabel"><i class="bi bi-file-earmark-plus me-2"></i>
+                    Submit Title Proposal</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data"
+                    action="{{url_for('listofthesis.submitThesisTitle')}}">
+                    <div class="mb-3">
+                        <label for="selectSubject" class="form-label">Subject</label>
+                        <select name="selectSubject" id="selectSubject" class="form-select rounded-lg" required>
+                            <option value="">Select a Subject</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.subjectID }} - {{
+                                subject.courseDescription }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title Proposal</label>
+                        <input type="text" class="form-control rounded-lg" name="title" id="title"
+                            placeholder="Enter your proposed thesis title" required>
+
+                        
+                    </div>
+
+                    <!-- <div class="mb-3 p-2">
+                        <label for="description" class="form-label text-center fw-bold text-muted text-decoration-underline">Check for Uniqueness of Thesis Title</label>
+                        
+                        <div class="d-flex flex-column justify-content-between">
+                            
+                        <label for="description" class="form-label">Uniqueness of Thesis:</label> <span class="strong" id="uniqueness"> </span> 
+                        <a href="{{url_for('research.check_title_similarity', title=title)}}" class="btn btn-sm btn-outline-primary me-2">Check</a>
+                        </div>
+                      
+                    </div> -->
+
+            </div>
+            <div class="modal-footer justify-content-end border-top-0">
+                <button type="button" class="btn btn-outline-secondary action-btn"
+                    data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success action-btn"><i class="bi bi-check-circle me-2"></i>
+                    Submit</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- The scripts are already included at the top of the file; removing redundant inclusions here helps avoid conflicts -->
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // ✅ Initialize DataTable only if not already initialized
+        let table;
+        if (!$.fn.DataTable.isDataTable('#mythesislist')) {
+            table = $('#mythesislist').DataTable({
+                responsive: true,
+                pagingType: "simple_numbers",
+                pageLength: 10,
+                lengthChange: false,
+                language: {
+                    // search: "Filter:",
+                    search: false, // Hides the default search box
+                    paginate: { next: " »", previous: "« " }
+                },
+                order: [[1, 'asc']], // Sort by title
+                columnDefs: [{
+                    orderable: false,
+                    targets: [0, 4, 5] // Don't sort ID, Research Number, Actions
+                }],
+                layout: {
+                    bottomStart: 'paging',
+                    bottom: 'info',
+                    bottomEnd: null
+                },
+                drawCallback: function () {
+                    // Reinitialize Bootstrap dropdowns after each table redraw
+                    $('[data-bs-toggle="dropdown"]').dropdown('dispose').dropdown();
+                }
+            });
+        } else {
+            table = $('#mythesislist').DataTable();
+        }
+
+        // ✅ Handle editInformation modal - pre-populate with user data
+        const editInformationModal = document.getElementById('editInformation');
+        if (editInformationModal) {
+            editInformationModal.addEventListener('show.bs.modal', function () {
+                // Pre-populate form fields with user information from page
+                const fullNameText = document.querySelector('h3.fw-bold').textContent;
+                const names = fullNameText.replace('Welcome, ', '').replace(/!.*/, '').trim();
+
+                // Fetch user data from server (you may need to adjust this endpoint)
+                fetch('/api/user-info', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('firstName').value = data.firstName || '';
+                        document.getElementById('lastName').value = data.lastName || '';
+                        document.getElementById('middleName').value = data.middleName || '';
+                        document.getElementById('email').value = data.email || '';
+                        document.getElementById('contactNumber').value = data.contactNumber || '';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching user info:', error);
+                        // Fallback: show a message
+                        alert('Could not load user information. Please try again.');
+                    });
+            });
+        }
+
+        //action passing for delete
+        $(document).on('click', '.action-btn-table-delete', function (e) {
+            const thesisId = $(this).data('thesis-id');
+            const title = $(this).data('thesis-title');
+            $('#deleteThesisTitle').text(title);
+            $('#thesis-id-delete').text(thesisId)
+        });
+
+        //Delete action
+        $(document).on('click', '.action-btn-table-delete', function () {
+            // ✅ Get data from clicked button
+            const thesisId = $(this).data('thesis-id');
+            const thesisTitle = $(this).data('thesis-title');
+
+            // ✅ Update modal content
+            $('#deleteThesisTitle').text(thesisTitle);
+            $('#thesis-id-delete').val(thesisId);
+
+            // ✅ Update form action dynamically
+            $('#deleteForm').attr('action', "{{ url_for('listofthesis.delete_thesis', thesis_id=0) }}".replace('0', thesisId));
+
+            // ✅ Show modal
+            $('#deleteThesisModal').modal('show');
+        });
+
+        //edit pass value
+        $(document).on('click', '.edit-btn', function () {
+            // ✅ Get data from clicked button
+            const thesisId = $(this).data('thesis-id');
+            const thesisTitle = $(this).data('thesis-title');
+
+            // ✅ Update modal content
+            $('#thesisTitleInput').val(thesisTitle);
+
+            // ✅ Update form action dynamically
+            $('#editForm').attr('action', "{{ url_for('listofthesis.edit_thesis_title', thesis_id=0) }}".replace('0', thesisId));
+
+            // ✅ Show modal
+            $('#editThesisModal').modal('show');
+        });
+
+        // ✅ Optional: Style tweaks for a cleaner DataTable appearance
+        $('#mythesislist_wrapper .dataTables_filter input').addClass('form-control form-control-sm');
+        $('#mythesislist_wrapper .dataTables_length select').addClass('form-select form-select-sm');
+
+
+        // ✅ AJAX Loader for Profile Content
+        $(document).on('click', '.ajax-profile-link', function (event) {
+            event.preventDefault();
+            const targetUrl = $(this).attr('href');
+            const $contentContainer = $('#ajax-profileContent');
+
+            if (!$contentContainer.length) return;
+
+            // Show loading spinner
+            $contentContainer.html('<div class="text-center py-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2 mb-0">Loading upload form...</p></div>');
+
+            $.get(targetUrl, function (html) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Extract the main content from addthesis.html (usually inside a container or main tag)
+                const newContent = doc.querySelector('main') || doc.querySelector('.container') || doc.querySelector('.container-fluid') || doc.body;
+
+                $contentContainer.html(newContent.innerHTML);
+
+                // ✅ Initialize injected page-specific JS
+                if (typeof window.initProfileSettings === 'function') {
+                    window.initProfileSettings();
+                }
+
+                // ✅ Critical: Manually execute scripts found in the loaded HTML
+
+                // This ensures that dropdown logic or form validation in addthesis.html still works
+                $(newContent).find('script').each(function () {
+                    if (this.src && document.querySelector(`script[src="${this.src}"]`)) {
+                        return;
+                    }
+                    const script = document.createElement('script');
+                    if (this.text) script.text = this.text;
+                    if (this.src) script.src = this.src;
+                    document.head.appendChild(script);
+                    if (!this.src) {
+                        script.parentNode.removeChild(script);
+                    }
+                });
+
+
+
+            }).fail(function (err) {
+                $contentContainer.html('<div class="alert alert-danger">Failed to load upload form. Please refresh or try again.</div>');
+                console.error('AJAX Load Error:', err);
+            });
+        });
+    });
+</script>
+
+{% endblock %}

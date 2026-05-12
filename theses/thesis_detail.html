@@ -1,0 +1,31 @@
+<!-- templates/thesis_detail.html -->
+{% extends "header/base.html" %}
+
+{% block title %}{{ thesis.title }} - Thesis Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm my-5">
+        <div class="card-body">
+            <h1 class="card-title mb-3">{{ thesis.title }}</h1>
+            <h5 class="card-subtitle mb-2 text-muted">By: {{ thesis.first_name }} {{ thesis.last_name }}</h5>
+            <hr>
+            <p class="card-text"><strong>Abstract:</strong></p>
+            <p class="card-text">{{ thesis.abstract }}</p>
+            <p class="card-text mt-3"><strong>Course:</strong> {{ thesis.course_rel.courseName if thesis.course_rel else
+                thesis.course_id }}</p>
+            <p class="card-text"><strong>Copyright Year:</strong> {{ thesis.copyright_yy }}</p>
+            <p class="card-text"><strong>Views:</strong> {{ thesis.views }}</p>
+            <!-- <p class="card-text"><strong>Downloads:</strong> {{ thesis.downloads }}</p> -->
+            <hr>
+            {# You might add a download link here if you have a route for it #}
+            <div class="d-flex card-footer-content justify-content-end">
+                <a href="" class="btn btn-success me-2"><i class="bi bi-bookmark"></i> Make Citation </a>
+                <a href="{{ url_for('auth.download_thesis', thesis_id=thesis.id) }}" class="btn btn-success me-2"><i
+                        class="bi bi-cloud-download"></i> Download
+                    PDF</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

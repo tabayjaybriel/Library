@@ -1,0 +1,63 @@
+{% block content %}
+<div class="container-fluid py-4">
+
+    
+    <div class="container-fluid py-3 cmu-green shadow-sm mb-2 ">
+        <div class="d-flex justify-content-end align-items-center">
+            <span class="text-muted small fw-bold uppercase me-4">Export Options:</span>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-success"
+                    onclick="exportTableToExcel('MonthlyAnalytics', 'usage_report')">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                    onclick="exportTableToWord('MonthlyAnalytics')">
+                    <i class="bi bi-file-earmark-word me-1"></i> Word
+                </button>
+               
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="user_analyticActivity">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Period</th>
+                    <th>User Name</th>
+                    <th class="text-center">Thesis Views</th>
+                    <th class="text-center">Thesis DLs</th>
+                    <th class="text-center">E-Res Views</th>
+                    <th class="text-center">E-Res DLs</th>
+                    <th class="text-center fw-bold pe-4">Total Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in query %}
+                <tr>
+                    <td class="ps-4 text-muted">{{ row.period }}</td>
+                    <td class="fw-bold text-dark">{{ row.user_name }}</td>
+                    <td class="text-center">{{ row.thesis_views|int }}</td>
+                    <td class="text-center">{{ row.thesis_downloads|int }}</td>
+                    <td class="text-center">{{ row.eresource_views|int }}</td>
+                    <td class="text-center">{{ row.eresource_downloads|int }}</td>
+                    <td class="text-center pe-4">
+                        <span class="badge bg-primary rounded-pill px-3">
+                            {{ row.thesis_views + row.thesis_downloads + row.eresource_views +
+                            row.eresource_downloads }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">No user activity recorded for this
+                        period.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+{% endblock %}

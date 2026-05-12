@@ -1,0 +1,164 @@
+{% extends "header/base.html" %}
+{% block content %}
+<div id="ajax-content-area">
+    <div class="container-fluid mt-3">
+
+        <div class="card border-1">
+
+            <!-- HEADER -->
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    📄 Reading Preview: {{ thesis.title }}
+                </h5>
+
+                <a href="{{ url_for('auth.download_thesis', thesis_id=thesis.id) }}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-download"></i> Download Full Version (Watermarked)
+                </a>
+
+                <!-- <button class="btn btn-outline-warning" onclick="history.back()">
+                    ← Back
+                </button> -->
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body p-0">
+
+                <!-- INFO ALERT -->
+                <div class="alert alert-info m-3 mb-0 text-center d-flex align-items-center justify-content-center gap-2"
+                    role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    You are viewing only the first 20% of this document.
+                    Full access requires download.
+                </div>
+
+                <!-- LOADING INDICATOR -->
+                <div id="loading" class="text-center py-3">
+                    <div class="spinner-border text-success" role="status"></div>
+                    <p class="mt-2 text-muted">Loading preview...</p>
+                </div>
+
+                <!-- PDF VIEWER -->
+                <div class="container mt-4 mb-2">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="justify-content-between">
+                            <button id="prev" class="btn btn-sm btn-secondary">Prev</button>
+                            <button id="next" class="btn btn-sm btn-secondary">Next</button>
+                        </div>
+
+                        <div>
+                            Page: <span id="page_num"></span> / <span id="page_count"></span>
+                        </div>
+
+                        <div>
+                            <button id="zoom_in" class="btn btn-sm btn-success">+</button>
+                            <button id="zoom_out" class="btn btn-sm btn-danger">-</button>
+                        </div>
+                    </div>
+
+                    <canvas id="pdf-render" style="width:100%; border:1px solid #ccc;"></canvas>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script>
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        </script>
+
+        <script>
+            const url = "{{ url_for('listofthesis.get_preview_pdf', thesis_id=thesis.id) }}";
+
+            let pdfDoc = null,
+                pageNum = 1,
+                pageIsRendering = false,
+                pageNumIsPending = null,
+                scale = 1.2;
+
+            const canvas = document.getElementById('pdf-render');
+            const ctx = canvas.getContext('2d');
+
+            // Load PDF
+            pdfjsLib.getDocument(url).promise
+                .then(pdfDoc_ => {
+                    pdfDoc = pdfDoc_;
+                    document.getElementById('page_count').textContent = pdfDoc.numPages;
+                    renderPage(pageNum);
+                })
+                .catch(err => {
+                    console.error("PDF load error:", err);
+                    document.getElementById('loading').innerHTML =
+                        "<p class='text-danger'>Failed to load PDF</p>";
+                });
+
+            // Render page
+            function renderPage(num) {
+                pageIsRendering = true;
+
+                pdfDoc.getPage(num).then(page => {
+                    const viewport = page.getViewport({ scale });
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderCtx = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+
+                    page.render(renderCtx).promise.then(() => {
+                        pageIsRendering = false;
+
+                        // hide loader
+                        document.getElementById('loading').style.display = 'none';
+
+                        if (pageNumIsPending !== null) {
+                            renderPage(pageNumIsPending);
+                            pageNumIsPending = null;
+                        }
+                    });
+
+                    document.getElementById('page_num').textContent = num;
+                });
+            }
+
+            // Queue rendering
+            function queueRenderPage(num) {
+                if (pageIsRendering) {
+                    pageNumIsPending = num;
+                } else {
+                    renderPage(num);
+                }
+            }
+
+            // Next page
+            document.getElementById('next').addEventListener('click', () => {
+                if (pageNum >= pdfDoc.numPages) return;
+                pageNum++;
+                queueRenderPage(pageNum);
+            });
+
+            // Prev page
+            document.getElementById('prev').addEventListener('click', () => {
+                if (pageNum <= 1) return;
+                pageNum--;
+                queueRenderPage(pageNum);
+            });
+
+            // Zoom
+            document.getElementById('zoom_in').addEventListener('click', () => {
+                scale += 0.2;
+                queueRenderPage(pageNum);
+            });
+
+            document.getElementById('zoom_out').addEventListener('click', () => {
+                scale = Math.max(0.5, scale - 0.2);
+                queueRenderPage(pageNum);
+            });
+        </script>
+        {% endblock %}

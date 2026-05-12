@@ -1,0 +1,112 @@
+{% extends "header/base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-bar-chart-fill text-success"></i> Analytics Dashboard
+    </h2>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="status-card">
+                <p>Total Theses</p>
+                <h2>{{ total_theses }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="status-card">
+                <p>Total Views</p>
+                <h2>{{ total_views }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="status-card">
+                <p>Total Downloads</p>
+                <h2>{{ total_downloads }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="status-card">
+                <p>Users</p>
+                <h2>{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h6 class="fw-bold">Monthly Views</h6>
+                <canvas id="viewsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h6 class="fw-bold">Monthly Downloads</h6>
+                <canvas id="downloadsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP VIEWED -->
+    <div class="card mt-4 p-3">
+        <h6 class="fw-bold">Top 5 Most Viewed Theses</h6>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Views</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for title, views in top_viewed %}
+                <tr>
+                    <td>{{ title }}</td>
+                    <td>{{ views }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const viewsData = {{ monthly_views | tojson }};
+    const downloadsData = {{ monthly_downloads | tojson }};
+
+    const viewMonths = viewsData.map(v => `Month ${v[0]}`);
+    const viewCounts = viewsData.map(v => v[1]);
+
+    const downloadMonths = downloadsData.map(d => `Month ${d[0]}`);
+    const downloadCounts = downloadsData.map(d => d[1]);
+
+    new Chart(document.getElementById('viewsChart'), {
+        type: 'line',
+        data: {
+            labels: viewMonths,
+            datasets: [{
+                label: 'Views',
+                data: viewCounts,
+                borderWidth: 2
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('downloadsChart'), {
+        type: 'bar',
+        data: {
+            labels: downloadMonths,
+            datasets: [{
+                label: 'Downloads',
+                data: downloadCounts
+            }]
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% block content %}
+<div class="container-fluid py-4">
+    
+    
+    <div class="d-flex justify-content-center align-items-center mb-4 border-bottom">
+        <h5 class="mb-0 fw-bold text-dark mb-2">
+            <i class="bi bi-search me-2 text-primary"></i>
+            List of Thesis being Filtered by: <strong>{{ query }}</strong>
+        </h5>       
+    </div>
+
+
+    <table id="tableFilterViews" class="table table-hover">
+        <tr>
+            <th>#</th>
+            <th>Author</th>
+            <th>Title</th>
+            <th>Date</th>
+            
+        </tr>
+
+        <tr>
+            {% for filter in filterViews %}
+            <td>{{loop.index}}</td>
+            <td>{{filter.first_name}} {{filter.last_name}}</td>
+            <td>{{filter.title}}</td>
+            <td>{{filter.posted_at}}</td>
+                        
+        </tr>
+
+       {% endfor %}
+    </table>
+
+
+</div>
+
+{% endblock %}

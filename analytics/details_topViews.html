@@ -1,0 +1,161 @@
+{% block content %}
+
+
+<div class="container">
+    <!-- Thesis Main Profile -->
+    <div class="cmu-card mb-5 border border-subtle bg-body-tertiary py-4">
+        <div class="p-md-2">
+            <div class="row align-items-start">
+                <div class="col-lg-9">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-2">
+                            <li class="breadcrumb-item text-success fw-bold">Analytics</li>
+                            <li class="breadcrumb-item active">Top Viewed Thesis</li>
+                        </ol>
+                    </nav>
+
+                    <h5 class="thesis-title text-center fw-bold">
+                        {{ thesis.title }}
+                    </h5>
+                    <hr>
+
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-4">
+                            <!-- Main container for the split layout -->
+                            <div class="row g-0 align-items-center h-100">
+
+                                <!-- Left Side: Smaller (Holder of picture) -->
+                                <div class="col-4">
+                                    <div class="bg-success d-flex align-items-center justify-content-center p-3 rounded-start h-100"
+                                        style="min-height: 100px;">
+                                        <!-- Avatar Circle -->
+                                        <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm fw-bold fs-3"
+                                            style="width: 55px; height: 55px; aspect-ratio: 1/1;">
+                                            {% if thesis.user %}
+                                            {{ thesis.user.user_fullName[0] }}
+                                            {% else %}
+                                            {{ thesis.first_name[0] }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Side: Information of the Author -->
+                                <div class="col-8">
+                                    <div class="ps-3 py-2">
+
+                                        <div
+                                            class="info-value fw-bold text-dark fs-4 text-success justify-content-center d-flex align-items-center gap-1">
+                                            {% if thesis.user %}
+                                            {{ thesis.user.user_fullName }}
+                                            {% else %}
+                                            {{ thesis.first_name }} {{ thesis.last_name }}
+                                            {% endif %}
+                                        </div>
+                                        <hr class="my-2">
+                                        <div
+                                            class="info-label text-muted small fw-bold text-uppercase mb-1 justify-content-center d-flex align-items-center gap-1">
+                                            <i class="bi bi-person me-1"></i> Author
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 align-items-center d-flex flex-column">
+                            <div class="info-label fs-5 fw-bold "><i class="bi bi-building me-1"></i> College</div>
+                            <div class="info-value">{{ thesis.stud_college or 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 align-items-center d-flex flex-column">
+                            <div class="info-label fs-5 fw-bold"><i class="bi bi-mortarboard me-1"></i> Course</div>
+                            <div class="info-value">{{ course.courseName if course else thesis.course }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 text-lg-end mt-4 mt-lg-0">
+                    <div
+                        class="views-badge mb-3 rounded-2 d-flex flex-column justify-content-center align-items-center shadow-sm p-4 bg-success text-white fw-bold">
+                        <span class="info-label d-block mb-1">Total Views</span>
+                        <p class="views-count m-0 fs-2">{{ total_views }}</p>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-outline-cmu btn-cmu btn-sm" onclick="exportExcel()">
+                            <i class="bi bi-file-earmark-excel me-2"></i>Export Dataset
+                        </button>
+                        <button class="btn btn-outline-cmu btn-sm" onclick="exportWord()">
+                            <i class="bi bi-printer me-2"></i>Print Summary
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Patron Access DataTable -->
+    <div class="cmu-card border-1 shadow-sm">
+        <div
+            class="cmu-header-accent d-flex justify-content-between align-items-center bg-white border-bottom-1 border-subtle">
+            <span><i class="bi bi-person-rolodex me-2"></i> Patron Access History</span>
+            <span class="badge bg-danger text-white">Live Data</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-professional table-hover" id="patronTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Date & Time</th>
+                        <th scope="col">Patron Name</th>
+                        <th scope="col">User Category</th>
+                        <th scope="col">Originating Department</th>
+                        <th scope="col" class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if access_records %}
+                    {% for record in access_records %}
+                    <tr>
+                        <td>{{ record.date }}</td>
+                        <td class="fw-semibold">{{ record.patron_name }}</td>
+                        <td>
+                            <span class="user-badge bg-primary-subtle text-primary border border-primary-subtle">
+                                {{ record.user_category }}
+                            </span>
+                        </td>
+                        <td>{{ record.department or 'N/A' }}</td>
+                        <td class="text-center text-muted">
+                            <i class="fa-solid fa-{{ 'download' if record.action == 'Download' else 'eye' }} me-1"></i>
+                            {{ record.action }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">No access history available yet.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white py-3 text-center">
+            <small class="text-muted">Showing last {{ access_records|length }} of {{ total_access }} access records.
+                Generated by CMU Digital Repository Analytics.</small>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function exportExcel() {
+        console.log("Exporting patron access data to Excel...");
+        // Implement export logic here
+    }
+    function exportWord() {
+        console.log("Generating Word summary...");
+        // Implement export logic here
+    }
+</script>
+
+{% endblock %}

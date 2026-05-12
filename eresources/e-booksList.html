@@ -1,0 +1,103 @@
+{% block content %}
+
+    <hr>
+    <div class="row justify-content-center">
+
+        <h3 class="text-center fw-bold mb-4">E-Library Resources</h3>
+
+        <div class="col-lg-10">
+           
+            <div class="row">
+                <div class="col-md-12">
+
+                    <table id="listE-Book" class="table table-borderless w-100 ">
+                        <thead class="bg-success text-white">
+                            <tr>
+                                <th scope="col"></th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for eBook in myEbooks %}
+                            <tr>
+                                <!-- <th scope="row">{{ eBook.id }}</th> -->
+                                <td class="p-0 pb-3 border-0">
+                                    <div
+                                        class="list-group-item list-group-item-action border rounded-3 resource-row bg-white">
+                                        <div class="row align-items-center g-3">
+                                            <div class="col-auto d-flex align-items-center gap-3">
+                                                <span class="text-muted fw-bold small">{{ loop.index }}</span>
+                                                <div class="icon-box">
+                                                    <i class="bi bi-book fa-lg"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Resource Info -->
+                                            <div class="col">
+                                                <h5 class="mb-1 fw-bold text-dark">{{eBook.title|truncate}}</h5>
+                                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                                    <span class="text-muted small"><i
+                                                            class="bi bi-person-bounding-box"></i>
+                                                        {{eBook.author}}</span>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="bi bi-calendar3"></i> {{eBook.year}} </span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Stats Section -->
+                                            <!-- <div class="col-md-auto">
+                                                <div class="d-flex gap-2">
+                                                    <div class="stat-badge text-center border">
+                                                        <div class="small text-uppercase text-muted"
+                                                            style="font-size: 0.65rem;">Views</div>
+                                                        <div class="fw-bold text-primary">{{ eBook.view_count }}</div>
+                                                    </div>
+                                                    <div class="stat-badge text-center border">
+                                                        <div class="small text-uppercase text-muted"
+                                                            style="font-size: 0.65rem;"> Downloads
+                                                        </div>
+                                                        <div class="fw-bold text-success">{{ eBook.download_count }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+
+                                            <!-- Action Buttons -->
+                                            <div class="col-auto">
+                                                <div class="btn-group">
+                                                    <form method="post" action="{{url_for('eresources.log_eresource_view', id = eBook.id) }}">
+                                                    <button class="btn btn-outline-secondary btn-sm" type="submit"
+                                                        title="View Details">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
+                                                    </form>
+
+                                                    <form method="post" action="{{url_for('eresources.log_eresource_download', id = eBook.id) }}">
+                                                    <button class="btn btn-outline-secondary btn-sm" type="submit" title="Download">
+                                                        <i class="bi bi-download px-1"></i> Download
+                                                    </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+
+
+
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

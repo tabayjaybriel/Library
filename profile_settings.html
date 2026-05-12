@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="dashboard-header mb-0" style="border-bottom: none;">
+            <i class="bi bi-person-fill me-2"></i>Profile
+        </h5>
+
+        <!-- personnel Button -->
+        <div class="dropdown">
+            <button class="btn btn-sm dropdown-toggle btn-outline-secondary" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="bi bi-gear"></i>
+            </button>
+            <ul class="dropdown-menu text-center" aria-labelledby="dropdownMenuButton1">
+                <li>
+                    <span>Change Username </span>
+
+                </li>
+                <hr class="dropdown-divider">
+                <li>
+                    <span>Change Password</span>
+                </li>
+                <hr class="dropdown-divider">
+                <li>
+                    <span>Change Picture</span>
+                </li>
+                <hr class="dropdown-divider">
+
+            </ul>
+
+            <!-- Home Button -->
+            <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-primary btn-sm  ">
+                <i class="bi bi-house me-1"></i>
+            </a>
+
+        </div>
+
+
+
+    </div>
+
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom border-light">
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="bi bi-gear-fill me-2 text-primary"></i>Account Settings
+            </h5>
+        </div>
+
+        
+        <div class="card-body p-4">
+            <form id="profileSettingsForm" method="POST">
+                <input type="hidden" id="userId" value="{{ user.id }}">
+
+                <!-- Section: Personal Information -->
+                <div class="row mb-5">
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-1">Personal Information</h6>
+                        <p class="text-muted small">Update your basic identity details and residential address.</p>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="lastName" class="form-label small fw-semibold">Last Name</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="lastName"
+                                    name="last_name" placeholder="Last Name" required value="{{ user.user_lastName }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="firstName" class="form-label small fw-semibold">First Name</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="firstName"
+                                    name="first_name" placeholder="First Name" required
+                                    value="{{ user.user_firstName }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="middleName" class="form-label small fw-semibold">Middle Name</label>
+                                <input type="text" class="form-control bg-light border-0 shadow-none" id="middleName"
+                                    name="middle_name" placeholder="Middle Name" value="{{ user.user_middleName }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="Address" class="form-label small fw-semibold">Home Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="bi bi-geo-alt"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none" id="Address"
+                                        name="address" placeholder="Complete Street, City, Province"
+                                        value="{{ user.user_address }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-25">
+
+                <!-- Section: Contact Information -->
+                <div class="row mb-5">
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-1">Contact Information</h6>
+                        <p class="text-muted small">Ensure your contact details are up to date for notifications.</p>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label small fw-semibold">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control bg-light border-0 shadow-none" id="email"
+                                        name="email" value="{{ user.user_email }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Contact" class="form-label small fw-semibold">Contact Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-phone"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none" id="Contact"
+                                        name="Contact" value="{{ user.phoneNumber }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-25">
+
+                <!-- Section: Institutional Information -->
+                <div class="row mb-4">
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-1">Institutional Information</h6>
+                        <p class="text-muted small">Your academic records and university identification.</p>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="CMUID" class="form-label small fw-semibold">CMU ID Number</label>
+                                <input type="text"
+                                    class="form-control bg-light border-0 shadow-none fw-bold text-primary" id="CMUID"
+                                    name="CMUID" value="{{ user.barcode  }}">
+                                <div class="form-text mt-1"><i class="bi bi-info-circle me-1"></i>Official ID Number.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="LibraryID" class="form-label small fw-semibold">Library ID Number</label>
+                                <input type="text"
+                                    class="form-control bg-light border-0 shadow-none fw-bold text-primary"
+                                    id="LibraryID" name="LibraryID" value="{{ user.district_id  }}">
+                                <div class="form-text mt-1"><i class="bi bi-info-circle me-1"></i>Official Library ID
+                                    Number.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="College" class="form-label small fw-semibold">College</label>
+                                <select class="form-select bg-light border-0 shadow-none" id="College" name="College">
+                                    <option value="">Select College</option>
+                                    {% for college in colleges %}
+                                    <option value="{{ college.id }}" {% if user.user_college==college.id %}selected{%
+                                        endif %}>
+                                        {{ college.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-6">
+                                <label for="Course" class="form-label small fw-semibold">Degree Program / Course</label>
+                                <select class="form-select bg-light border-0 shadow-none" id="Course" name="Course"
+                                    data-current="{{ user.user_course }}">
+                                    <option value="">Select Course</option>
+                                    <!-- Courses will be loaded dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-3 border-top d-flex justify-content-end gap-2">
+
+                    <button type="submit" class="btn btn-success px-4 d-flex align-items-center shadow-sm">
+                        <i class="bi bi-check2-circle me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+#modal for upload picture
+
+<div class="modal fade" id="uploadPictureModal" tabindex="-1" aria-labelledby="uploadPictureModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg">
+            <div class="modal-header bg-success text-white rounded-top-4">
+                <title>Upload Picture</title>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+
+#modal for change password
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg">
+            <div class="modal-header bg-success text-white rounded-top-4">
+                <title>Change Password</title>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const collegeSelect = document.getElementById('College');
+        const courseSelect = document.getElementById('Course');
+        const currentCourseId = courseSelect.getAttribute('data-current');
+
+        // Function to load courses
+        async function loadCourses(collegeId, selectedCourseId = null) {
+            if (!collegeId) {
+                courseSelect.innerHTML = '<option value="">Select Course</option>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`{{ url_for('auth.get_courses') }}?college_id=${collegeId}`);
+                const courses = await response.json();
+
+                courseSelect.innerHTML = '<option value="">Select Course</option>';
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.id;
+                    option.textContent = course.courseName;
+                    if (selectedCourseId && course.id == selectedCourseId) {
+                        option.selected = true;
+                    }
+                    courseSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            }
+        }
+
+        // Initial load if college is already selected
+        if (collegeSelect.value) {
+            loadCourses(collegeSelect.value, currentCourseId);
+        }
+
+        // Change listener for dependent dropdown
+        collegeSelect.addEventListener('change', function () {
+            loadCourses(this.value);
+        });
+
+
+        // Handle form submission via AJAX
+
+        const form = document.getElementById('profileSettingsForm');
+        if (form) {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                const confirmSaveModal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
+                confirmSaveModal.show();
+
+                document.getElementById('confirmSaveBtn').onclick = async function() {
+                    confirmSaveModal.hide(); // Hide confirmation modal
+
+                    const data = {
+                        first_name: document.getElementById('firstName').value,
+                        middle_name: document.getElementById('middleName').value,
+                        last_name: document.getElementById('lastName').value,
+                        address: document.getElementById('Address').value,
+                        contact: document.getElementById('Contact').value,
+                        college: document.getElementById('College').value,
+                        course: document.getElementById('Course').value,
+                        email: document.getElementById('email').value,
+                        barcode: document.getElementById('CMUID').value,
+                        district_id: document.getElementById('LibraryID').value
+                    };
+
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+
+                    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+                    const statusModalHeader = document.getElementById('statusModalHeader');
+                    const statusModalLabel = document.getElementById('statusModalLabel');
+                    const statusModalBody = document.getElementById('statusModalBody');
+
+                    try {
+                        const response = await fetch("{{ url_for('personnel.update_user_profile') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            statusModalHeader.className = 'modal-header bg-success text-white';
+                            statusModalLabel.innerHTML = '<i class="bi bi-check-circle me-2"></i> Success';
+                            statusModalBody.innerHTML = result.message;
+                            
+                            // Automatically redirect after a short delay
+                            setTimeout(() => {
+                                window.location.href = result.redirect || "{{ url_for('auth.profile') }}";
+                            }, 2000);
+                        } else {
+                            statusModalHeader.className = 'modal-header bg-danger text-white';
+                            statusModalLabel.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i> Error';
+                            statusModalBody.innerHTML = result.message;
+                        }
+                        statusModal.show();
+
+                    } catch (error) {
+                        console.error(error);
+                        statusModalHeader.className = 'modal-header bg-danger text-white';
+                        statusModalLabel.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i> Error';
+                        statusModalBody.innerHTML = 'An unexpected error occurred while updating the profile.';
+                        statusModal.show();
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Save Changes';
+                    }
+                }
+            });
+
+        }
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,176 @@
+
+   
+{% extends "header/base.html" %}
+
+{% block content %}
+<div class="container my-2" >
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="btn-group" role="group" aria-label="Thesis Actions">
+            <a href="{{ url_for('auth.EresourcesPortal')}} " class="btn btn-success me-2">
+                <i class="bi bi-caret-left"></i></i> Back
+            </a>
+            <button type="button" class="btn btn-warning">
+                <i class="bi bi-archive"></i> List
+            </button>
+        </div>
+        
+      
+    </div>
+    <hr>
+
+    <!-- Flask Flash Messages Area (Always good practice to display success/error messages) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-area mb-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="card p-4 resource-card">
+        <div class="d-flex justify-content-center">
+            <h4> Upload E-Resources Form</h4>
+        </div>
+
+        <p class="text-center text-muted mb-1">Complete the fields below to add a new digital resource to the inventory. All required fields are marked with an asterisk (*).</p>
+
+        <!-- NOTE: The form action now uses url_for() which is best practice in Flask -->
+        <form id="eResourceForm" method="POST" action="{{ url_for('eresources.submit_resource') }}" enctype="multipart/form-data">
+
+            <!-- Section 1: Resource Type and File Upload -->
+            <div class="mb-4 p-3 border rounded">
+                <p class="form-section-header">1. Resource Type & File</p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Select Resource Type*</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="resourceType" id="typeEbook" value="Ebook" required>
+                                <label class="form-check-label" for="typeEbook">E-Book</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="resourceType" id="typeEjournal" value="Ejournal">
+                                <label class="form-check-label" for="typeEjournal">E-Journal / Article</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="resourceFile" class="form-label fw-bold">Upload File*</label>
+                        <input type="file" class="form-control" id="resourceFile" name="resourceFile" required>
+                        <div class="form-text text-danger">Accepted formats: PDF, EPUB, DOCX, PPTX, etc. (Max 50MB)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Core Metadata -->
+            <div class="mb-4 p-3 border rounded">
+                <p class="form-section-header">2. Core Metadata (for Citations & Search)</p>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="title" class="form-label">Title of Work*</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="col-md-8">
+                        <label for="authors" class="form-label">Author(s)*</label>
+                        <input type="text" class="form-control" id="authors" name="authors" placeholder="e.g., Last, First I.; Doe, J." required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="year" class="form-label">Year of Publication*</label>
+                        <input type="number" class="form-control" id="year" name="year" min="1000" max="2099" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="publisher" class="form-label">Publisher / Source*</label>
+                        <input type="text" class="form-control" id="publisher" name="publisher" placeholder="e.g., Routledge, Journal of Information Science" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="doi" class="form-label">DOI / Persistent URL*</label>
+                        <input type="url" class="form-control" id="doi" name="doi" placeholder="e.g., https://doi.org/10.1016/j.isci.2024.102555" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="issn_isbn" class="form-label">ISSN / ISBN (Optional)</label>
+                        <input type="text" class="form-control" id="issn_isbn" name="issn_isbn">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Fields for E-Journal -->
+            <div id="ejournalFields" class="mb-4 p-3 border rounded d-none">
+                <p class="form-section-header">E-Journal Specific Details</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="volume" class="form-label">Volume</label>
+                        <input type="number" class="form-control" id="volume" name="volume">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="issue" class="form-label">Issue</label>
+                        <input type="number" class="form-control" id="issue" name="issue">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="pages" class="form-label">Page Range</label>
+                        <input type="text" class="form-control" id="pages" name="pages" placeholder="e.g., 12-25">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Section 3: Discoverability and Staff Notes -->
+            <div class="mb-4 p-3 border rounded">
+                <p class="form-section-header">3. Discoverability & Staff Notes</p>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="subject" class="form-label">Subject Headings (Keywords)</label>
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="e.g., Computer Science, Linguistics, History">
+                    </div>
+                    <div class="col-12">
+                        <label for="staffNotes" class="form-label">Staff Notes (Private)</label>
+                        <textarea class="form-control" id="staffNotes" name="staffNotes" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-floppy"></i> Submit Resource & Save Metadata
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-HwwjJ/6v/818/1c8E8QW2+O5u2m3P4N/9w/A1d9G3T8jS0d7t8y+M" crossorigin="anonymous"></script>
+
+<script>
+    // This script handles the dynamic display of form fields.
+    document.addEventListener('DOMContentLoaded', () => {
+        const resourceTypeRadios = document.querySelectorAll('input[name="resourceType"]');
+        const ejournalFields = document.getElementById('ejournalFields');
+
+        const toggleEjournalFields = () => {
+            const selectedType = document.querySelector('input[name="resourceType"]:checked').value;
+            if (selectedType === 'Ejournal') {
+                ejournalFields.classList.remove('d-none');
+            } else {
+                ejournalFields.classList.add('d-none');
+            }
+        };
+
+        // Add event listeners
+        resourceTypeRadios.forEach(radio => {
+            radio.addEventListener('change', toggleEjournalFields);
+        });
+
+        // Set initial state on page load
+        toggleEjournalFields();
+    });
+</script>
+
+ {% endblock %}
+

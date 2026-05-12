@@ -1,0 +1,194 @@
+{% block content %}
+
+
+<div id="main-content" class="main-content-home">
+
+    <div class="container-fluid">
+        <form method="get" action="{{ url_for('analytics.date_analytics') }}">
+            <div class="analytics-toolbar">
+                <div class="row g-3 align-items-end">
+
+                    <!-- Date Range Section -->
+                    <div class="col-lg-5">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="filter-label fw-bold">Start Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i
+                                            class="bi bi-calendar-event"></i></span>
+                                    <input type="date" name="start_date" class="form-control border-start-0"
+                                        value="{{ start_date }}">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="filter-label fw-bold">End Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i
+                                            class="bi bi-calendar-check"></i></span>
+                                    <input type="date" name="end_date" class="form-control border-start-0"
+                                        value="{{ end_date }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Filter Section -->
+                    <div class="col-lg-4">
+                        <label class="filter-label fw-bold">View Frequency</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="resourceFilter" id="filterYearly" value="Yearly"
+                                {% if current_filter=='Yearly' %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary analytics-filter-radio fw-bold" for="filterYearly">Yearly</label>
+
+                            <input type="radio" class="btn-check" name="resourceFilter" id="filterMonthly"
+                                value="Monthly" {% if current_filter=='Monthly' or not current_filter %}checked{% endif
+                                %}>
+                            <label class="btn btn-outline-secondary analytics-filter-radio fw-bold" for="filterMonthly">Monthly</label>
+
+                            <input type="radio" class="btn-check" name="resourceFilter" id="filterDaily" value="Daily"
+                                {% if current_filter=='Daily' %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary analytics-filter-radio fw-bold" for="filterDaily">Daily</label>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="col-lg-3 d-flex gap-2">
+                        <button type="submit"
+                            class="btn btn-outline-cmu btn-primary w-100 btn-submitdate flex-grow-1 fw-bold">
+                            <i class="bi bi-funnel-fill me-1"></i> Apply
+                        </button>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+    <hr>
+
+
+    view
+        <div class="row g-4">
+            <!-- Top Viewed Table -->
+            <div class="col-xl-6">
+                <div class="card analytics-card h-100">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="card-title mb-0 fw-bold text-dark">
+                            <i class="bi bi-eye text-primary me-2"></i>Top Viewed Theses
+                        </h5>
+                    </div>
+                    <div class="container-fluid">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="analyticsTopViewsthesis"
+                                style="width:100%">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-3" style="width: 50px;">#</th>
+                                        <th>Title</th>
+                                        <th class="text-center">Views</th>
+                                        <th class="text-end pe-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for thesis_id, title, views in top_viewed %}
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-muted">{{ loop.index }}</td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 300px;" title="{{ title }}">
+                                                {{ title }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="stat-badge-view">{{ views }}</span>
+                                        </td>
+                                        <td class="text-end pe-3">
+
+                                            <!-- Action Buttons drop down list for analytics details and report will be created -->
+
+                                            <div class="dropdown">
+                                                <button class="btn btn-light btn-sm rounded-circle" type="button"
+                                                    data-bs-toggle="dropdown"> 
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                    <li><a class="dropdown-item analytics-action-link" href="{{ url_for('analytics.thesis_details', thesis_id=thesis_id) }}"><i
+                                                                class="bi bi-info-circle me-2"></i>Details</a></li>
+                                                    <li><a class="dropdown-item analytics-action-link" href="{{ url_for('analytics.thesis_reportDetails', thesis_id=thesis_id)}}"><i
+                                                                class="bi bi-file-earmark-pdf me-2"></i>Report</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Downloaded Table -->
+            <div class="col-xl-6">
+                <div class="card analytics-card h-100">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="card-title mb-0 fw-bold text-dark">
+                            <i class="bi bi-cloud-download text-success me-2"></i>Top Downloaded
+                        </h5>
+                    </div>
+                    <div class="container-fluid">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="analyticsTopDownloadedThesis"
+                                style="width:100%">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-3" style="width: 50px;">#</th>
+                                        <th>Title</th>
+                                        <th class="text-center">Downloads</th>
+                                        <th class="text-end pe-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for thesis_id, title, downloads in top_downloads %}
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-muted">{{ loop.index }}</td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 300px;" title="{{ title }}">
+                                                {{ title }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="stat-badge-download">{{ downloads }}</span>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <div class="dropdown">
+                                                <button class="btn btn-light btn-sm rounded-circle" type="button"
+                                                    data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                    <li><a class="dropdown-item analytics-action-link" href="{{ url_for('analytics.thesis_details', thesis_id=thesis_id) }}"><i
+                                                                class="bi bi-info-circle me-2"></i>Details</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i
+                                                                class="bi bi-file-earmark-pdf me-2"></i>Report</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+</div>
+
+{% endblock %}

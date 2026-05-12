@@ -1,0 +1,195 @@
+{% extends "header/base.html" %}
+{% block content %}
+<!-- <style>
+    /* CMU Color Palette */
+    :root {
+        --cmu-maroon: #6A0032;
+        --cmu-gold: #FFC82E;
+        --cmu-light-bg: #f8f9fa;
+        --font-family: 'Inter', sans-serif;
+    }
+
+    /* General Styling */
+    body {
+        font-family: var(--font-family);
+        background-color: var(--cmu-light-bg);
+    }
+
+    .main-container {
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        border: 1px solid #dee2e6;
+        background-color: #fff;
+    }
+
+    .page-header {
+        color: var(--cmu-maroon);
+        font-weight: 800;
+    }
+
+    /* Table Styling */
+    #subjectList thead th {
+        background-color: var(--cmu-maroon);
+        color: white;
+        font-weight: 600;
+        border: none;
+        vertical-align: middle;
+    }
+
+    #subjectList tbody tr:hover {
+        background-color: #f0f3f6;
+    }
+
+    /* Action Button Styling */
+    .btn-primary {
+        background-color: var(--cmu-maroon);
+        border-color: var(--cmu-maroon);
+    }
+
+    .btn-primary:hover {
+        background-color: #520026;
+        border-color: #520026;
+    }
+
+    .btn-outline-primary {
+        color: var(--cmu-maroon);
+        border-color: var(--cmu-maroon);
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--cmu-maroon);
+        color: white;
+    }
+
+    /* Modal Headers */
+    .modal-header {
+        background-color: var(--cmu-maroon);
+        color: white;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+</style> -->
+
+<div class="container my-5">
+    
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="page-header mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>My Subjects</h2>
+            <div class="d-flex gap-2 align-items-center flex-wrap justify-content-end">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Add New Subject
+                </button>
+                <form id="filterForm" method="GET" action="{{ url_for('faculty.listofSubject') }}">
+                    <div class="input-group">
+                        <label class="input-group-text" for="academicYearFilter"><i class="bi bi-calendar3"></i></label>
+                        <select class="form-select" id="academicYearFilter" name="filter_acad_year" onchange="this.form.submit()">
+                            <option value="">Filter by Academic Years</option>
+                            {% for year in academic_years %}
+                            <option value="{{ year }}" {% if year == current_acad_year %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Subject Data Table -->
+        <div class="table-responsive">
+            <table id="subjectList" class="table table-hover align-middle">
+                <thead>
+                    <tr class="text-center">
+                        <th class="text-center">#</th>
+                        <th>Academic Year</th>
+                        <th>Subject Code</th>
+                        <th>Description</th>
+                        <th class="text-center action-cell">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td class="text-center">{{ subject.acad_year }}</td>
+                        <td class="text-center fw-bold">{{ subject.subjectID }}</td>
+                        <td>{{ subject.courseDescription }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('faculty.studentListPersubject', subject_id=subject.id) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye-fill me-1"></i> View Students
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not subjects %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No subjects found for the selected academic year. Click "Add New Subject" to
+                            get started.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    
+</div>
+
+<!-- Add Subject Modal -->
+<div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSubjectModalLabel"><i class="bi bi-plus-circle-fill me-2"></i>Add New Subject</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('listofthesis.addSubject') }}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="academicYear" class="form-label">Academic Year</label>
+                        <select class="form-select" id="academicYear" name="academicYear" required>                            
+                            {% for year in modal_academic_years %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subjectcode" class="form-label">Subject Code</label>
+                        <input type="text" class="form-control" id="subjectcode" name="subjectcode" placeholder="e.g., CS 101" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Course Description</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="e.g., Introduction to Programming" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Subject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- DataTables requires jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<!-- DataTables JS for Bootstrap 5 -->
+<script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#subjectList').DataTable({
+            "pagingType": "simple_numbers",
+            "language": {
+                "search": "Search Subjects:",
+                "lengthMenu": "Show _MENU_ entries"
+            },
+            "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        });
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,724 @@
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+auto-refresh -->
+<meta http-equiv="refresh" content="300"> 
+{% extends "header/base.html" %}
+
+
+
+
+<!-- Load libraries first -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
+
+<!-- <script src="{{ url_for('static', filename='js/frontdesk.js') }}"></script> -->
+
+<style>
+    body{
+        font-size: 12px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+     .card {
+        border: none;
+        border-radius: 0.75rem;
+        /* Rounded corners */
+        box-shadow: var(--shadow);
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+</style>
+
+
+{% block content %}
+
+
+<div class="container-fluid py-4">
+
+    <!-- Masthead Section -->
+    <div class="card border-0 mb-4  bg-dark text-white overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #014d24 0%, #146c43 100%); 
+            border-radius: 0 0 1rem 1rem;
+            border-bottom: 4px solid rgba(255, 255, 255, 0.2); /* Adjust color/thickness here */">
+
+        <div class="card-body p-2 text-center position-relative">
+            <div class="position-relative z-1 mt-5 mb-2">
+                <h1 class="display-5 fw-bold mb-0">Research Management Portal</h1>
+                <p class="lead opacity-75 text-warning fw-bold mb-0">Central Mindanao University Repository Information
+                    System</p>
+                <p class="fs-sm text-warning fw-bold">University Town, Musuan, Maramag, Bukidnon, Region X, Philippines,
+                    8710</p>
+            </div>
+
+            <!-- Decorative Icon Background -->
+            <i class="bi bi-mortarboard position-absolute opacity-10"
+                style="font-size: 8rem; right: 2rem; top: 60%; transform: translateY(-50%); pointer-events: none;"></i>
+        </div>
+    </div>
+
+    <!-- Status Counter Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border border-subtle shadow-sm rounded-4 h-100 border border-subtle overflow-hidden">
+                <div class="card-body p-4 border-start border-outline-warning border-5 bg-success bg-opacity-10 d-flex flex-column justify-content-center align-items-center">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded-3 border border-subtle me-3">
+                            <i class="bi bi-plus-circle text-warning fs-4"></i>
+                        </div>
+                        <h6 class="card-title text-muted mb-0 small fw-bold text-uppercase">New Submissions</h6>
+                    </div>
+                    <div class="h2 fw-bold mb-0 text-dark">{{ countnewThesis }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border border-subtle shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card-body p-4 border-start border-outline-success border-5 bg-info bg-opacity-10 border-success d-flex flex-column justify-content-center align-items-center">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-3 border border-subtle me-3">
+                            <i class="bi bi-check2-all text-success fs-4"></i>
+                        </div>
+                        <h6 class="card-title text-muted mb-0 small fw-bold text-uppercase">Published</h6>
+                    </div>
+                    <div class="h2 fw-bold mb-0 text-dark">{{ countPublishedThesis|default(0) }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 ">
+            <div class="card border border-subtle shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card-body p-4 border-start border-outline-secondary border-5 bg-success bg-opacity-10 border-secondary d-flex flex-column justify-content-center align-items-center">
+                    <div class="d-flex align-items-center mb-2">
+                        
+                        <div class="bg-secondary bg-opacity-10 p-2 rounded-3 border border-subtle me-3">
+                            <i class="bi bi-archive text-secondary fs-4"></i>
+                        </div>
+                        <h6 class="card-title text-muted mb-0 small fw-bold text-uppercase">Archived</h6>
+                    </div>
+                    <div class="h2 fw-bold mb-0 text-dark">{{ countArchievedThesis }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border border-subtle shadow-sm rounded-4 bg-info bg-opacity-10 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted small fw-bold text-uppercase mb-3 text-center border-bottom">Quick Filters
+                    </h6>
+                    <div class="d-grid gap-2">
+                        <button type="button"
+                            class="btn btn-success   border btn-sm text-start shadow-md text-center" id="btn_published">
+                            <i class="bi bi-eye me-2 text-white"></i>View Published
+                        </button>
+                        <button type="button"
+                            class="btn btn-success border  btn-sm text-start shadow-md text-center" id="btn_archives">
+                            <i class="bi bi-archive me-2 text-white"></i>View Archives
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="alert-container mb-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category=='success' else 'danger' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+
+
+
+
+
+    <div class=" mb-2">
+        <nav class="row action-navbar mb-4 mt-3 bg-subtle">
+            <div class="col-12">
+                <div class="nav-segment-container shadow-sm">
+                    <!-- Breadcrumb Section -->
+                    <nav aria-label="breadcrumb">
+                        <ul class="breadcrumb custom-breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ url_for('auth.informationDeskPortal') }}" class="text-decoration-none">
+                                    <i class="bi bi-house-door me-1"></i>Home
+                                </a>
+                            </li>
+
+                            <li class="breadcrumb-item active" aria-current="page">
+                                <a href="{{ url_for('informationDesk.frontdeskInformation') }}"
+                                    class="text-decoration-none ajax-link">
+                                    <i class="bi bi-journal-bookmark-fill me-1"></i> List
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Search Section -->
+                    <div class="nav-search-wrapper">
+                        <div class="search-input-group">
+                            <i class="bi bi-search text-muted"></i>
+                            <input type="text" class="form-control" id="search-input"
+                                placeholder="Quick find by title, author, or keyword...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content Table -->
+    <div id="content-area">
+
+        <div class="container-fluid px-0 rounded-3 border bg-body-secondary border-dark-subtle shadow-sm py-2 px-2" style="overflow: visible !important;">
+            <!-- New Filter Toolbar -->
+            <div id="ajax-page-content">
+
+                <div class="filter-toolbar bbg-body-secondary border-bottom border-dark-subtle d-flex justify-content-between align-items-center flex-wrap gap-3 text-dark">
+                    <div class="filter-controls d-flex align-items-center gap-3 flex-wrap">
+                        <div class="d-flex align-items-center me-3">
+                            <span class="filter-label me-2">From</span>
+                            <input type="date" class="form-control form-control-sm  border w-auto"
+                                id="filter-date">
+                        </div>
+                        <div class="d-flex align-items-center me-3">
+                            <span class="filter-label me-2">To</span>
+                            <input type="date" class="form-control form-control-sm  w-auto"
+                                id="filter-date-to">
+                        </div>
+                        <button class="btn btn-success" id="print-button">
+                            Apply Filters
+                        </button>
+                    </div>
+
+                    <div class="print-branding bg-white border  border-subtle p-2 rounded-2 d-flex align-items-center">
+
+                        <div class="main-icon">
+                            <a href="#" class=" print text-decoration-none" title="Print">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                        </div>
+                        <div>
+
+                            <div class="d-flex align-items-center">
+                                <p class="mb-0 small text-muted text-uppercase me-3"
+                                    style="font-size: 0.6rem; letter-spacing: 1px;">Export:</p>
+                                <div class="export-options ">
+                                    <a href="#" class="export-link word text-decoration-none" title="Export to Word">
+                                        <i class="bi bi-file-earmark-word"></i>
+                                    </a>
+                                    <a href="#" class="export-link excel text-decoration-none" title="Export to Excel">
+                                        <i class="bi bi-file-earmark-excel"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Table placeholder -->
+                <div class="bg-white p-3">
+
+                    <div class=" container-fluid py-2 ">
+
+                        <table class=" table table-hover table-striped table-sm w-100 datatable table-light" id="submissionThesis">
+                            <thead class="table-dark">
+                                <tr >
+                                    <th></th>
+                                    <th>Month</th>
+                                    <th>Approved</th>
+                                    <th>Archived</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for row in monthly_stats %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row.month }}</td>
+                                    <td>{{ row.approved }}</td>
+                                    <td>{{ row.archived }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
+
+
+<script>
+    // === Initialize DataTables (Global Function) ===
+    function initDataTable() {
+        const tables = document.querySelectorAll(".datatable");
+        tables.forEach(table => {
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable(table)) {
+                $(table).DataTable().destroy();
+            }
+            
+            // Special configuration for submissionThesis table
+            if (table.id === "submissionThesis") {
+                $(table).DataTable({
+                    responsive: true,
+                    paging: true,
+                    info: false,
+                    searching: false,
+                    lengthChange: false
+                });
+            } else {
+                // Default configuration for other tables
+                $(table).DataTable({
+                    responsive: true,
+                    searching: true,
+                    paging: true,
+                    lengthChange: true,
+                    info: true
+                });
+            }
+        });
+    }
+
+    // === Initialize Bootstrap Dropdowns (Global Function) ===
+    function initDropdowns() {
+        const dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+        dropdownButtons.forEach(button => {
+            new bootstrap.Dropdown(button);
+        });
+    }
+
+    $(document).ready(function () {
+
+        initDataTable(); // Initialize on page load
+        initDropdowns(); // Initialize dropdowns on page load
+
+        // === AJAX Content Loading ===
+        document.addEventListener("click", function (e) {
+            const link = e.target.closest(".ajax-link");
+            if (!link) return;
+
+            e.preventDefault();
+
+            const url = link.href;
+            const contentArea = document.getElementById("ajax-page-content");
+            if (!contentArea) return;
+
+            // Show spinner
+            contentArea.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success"></div>
+                <p class="mt-2">Loading...</p>
+            </div>
+        `;
+
+            fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                .then(res => res.text())
+                .then(html => {
+                    contentArea.innerHTML = html;
+                    initDataTable(); // Reinitialize tables
+                })
+                .catch(() => {
+                    contentArea.innerHTML = `<div class="alert alert-danger">Failed to load</div>`;
+                });
+        });
+
+        // === Export Table Functions ===
+        window.exportTableToExcel = function (tableID, filename = '') {
+            const tableSelect = document.getElementById(tableID);
+            if (!tableSelect) return;
+
+            const tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+            const dataType = 'application/vnd.ms-excel';
+            const downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+
+            filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+            if (navigator.msSaveOrOpenBlob) {
+                const blob = new Blob(['\ufeff', tableHTML], { type: dataType });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+                downloadLink.download = filename;
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            }
+        };
+
+        window.exportTableToWord = function (tableID) {
+            const table = document.getElementById(tableID);
+            if (!table) return;
+
+            const header = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>`;
+            const footer = "</body></html>";
+            const sourceHTML = header + table.outerHTML + footer;
+
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'UsageReport.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        };
+
+    });
+
+    // === filter controls views ===
+    document.addEventListener("DOMContentLoaded", function () {
+        const btnPublished = document.getElementById("btn_published");
+        const btnArchives = document.getElementById("btn_archives");
+        const contentArea = document.getElementById("ajax-page-content");
+
+        btnPublished.addEventListener("click", function () {
+            contentArea.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success"></div>
+                <p class="mt-2">Loading published theses...</p>
+            </div>
+            `;
+
+            fetch("/informationDesk/filter-views?btn=published", { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                .then(res => res.text())
+                .then(html => {
+                    contentArea.innerHTML = html;
+                    setTimeout(() => {
+                        initDataTable(); // Reinitialize tables
+                        initDropdowns(); // Reinitialize dropdowns
+                    }, 100);
+                })  
+                .catch(() => {
+                    contentArea.innerHTML = `<div class="alert alert-danger">Failed to load published theses.</div>`;
+                });
+        });
+
+        btnArchives.addEventListener("click", function () {
+            
+            const url = "/informationDesk/filter-views?btn=archived";
+
+            contentArea.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success"></div>
+                <p class="mt-2">Loading archived theses...</p>
+            </div>
+        `;
+
+            fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                .then(res => res.text())
+                .then(html => {
+                    contentArea.innerHTML = html;
+                    setTimeout(() => {
+                        initDataTable(); // Reinitialize tables
+                        initDropdowns(); // Reinitialize dropdowns
+                    }, 100);
+                })
+                .catch(() => {
+                    contentArea.innerHTML = `<div class="alert alert-danger">Failed to load archived theses.</div>`;
+                });
+
+        });
+
+        
+    });
+
+
+
+
+    // === Search Functionality ===
+    const searchInput = document.getElementById("search-input");
+
+    searchInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            performSearch();
+        }
+    });
+
+    searchInput.addEventListener("input", function () {
+        // Optional: Perform search as user types (with debouncing)
+        clearTimeout(window.searchTimeout);
+        if (this.value.trim() === "") {
+            // If input is empty, you could reload the default page
+            return;
+        }
+        window.searchTimeout = setTimeout(performSearch, 500);
+    });
+
+    function performSearch() {
+        const query = searchInput.value.trim();
+        if (!query) {
+            alert("Please enter a search term");
+            return;
+        }
+
+        const contentArea = document.getElementById("ajax-page-content");
+        // Build URL with correct blueprint prefix and route
+        const searchUrl = `/informationDesk/search-items?q=${encodeURIComponent(query)}`;
+
+        // Show loading spinner
+        contentArea.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success"></div>
+                <p class="mt-2">Searching for "${query}"...</p>
+            </div>
+        `;
+
+        fetch(searchUrl, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.text();
+            })
+            .then(html => {
+                contentArea.innerHTML = html;
+                // Add small delay to ensure DOM is ready before initializing
+                setTimeout(() => {
+                    initDataTable(); // Reinitialize tables
+                    initDropdowns(); // Reinitialize dropdowns
+                }, 100);
+            })
+            .catch(err => {
+                contentArea.innerHTML = `<div class="alert alert-danger">Search failed: ${err.message}</div>`;
+                console.error("Search error:", err);
+            });
+    }
+
+
+</script>
+
+<style>
+    :root {
+        --cmu-green: #014d24;
+        --cmu-dark-green: #146c43;
+        --cmu-yellow: #ffc107;
+        --cmu-white: #ffffff;
+    }
+
+    .cmu-bg-primary {
+        background-color: var(--cmu-dark-green) !important;
+        color: #fff;
+    }
+
+    .cmu-text-accent {
+        color: #FFD700 !important;
+    }
+
+    .cmu-border-accent {
+        border-color: #FFD700 !important;
+    }
+
+    /* Main Header Styling */
+    .cmu-masthead {
+        background: var(--cmu-dark-green);
+        color: #fff;
+        padding: 2.5rem;
+    }
+
+    /* Status Card Styling (using Bootstrap Card and border utilities) */
+    .status-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        border-left: 5px solid;
+        /* Bootstrap border utility is 5px */
+    }
+
+    .status-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    
+
+    /* Custom Button for CMU Primary Action */
+    /* .btn-cmu-post {
+        background-color: #014d24;
+        color: white;
+        border-color: #014d24;
+        transition: background-color 0.2s;
+    }
+
+    .btn-cmu-post:hover {
+        background-color: #00702d;
+        border-color: #00702d;
+        color: white;
+    } */
+
+    /* .action-navbar {
+        background: transparent;
+    } */
+
+    .nav-segment-container {
+        background-color: #ffffff;
+        padding: 0.75rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .custom-breadcrumb {
+        background: transparent !important;
+        padding: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .custom-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+        content: "\F285";
+        /* Bootstrap icons chevron-right */
+        font-family: "bootstrap-icons";
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .custom-breadcrumb a {
+        color: #64748b;
+        font-weight: 500;
+        transition: color 0.2s;
+        font-size: 0.9rem;
+    }
+
+    .custom-breadcrumb a:hover {
+        color: #0f172a;
+    }
+
+    .custom-breadcrumb .active {
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    /* Search Bar Refinement */
+    .search-input-group {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 2px 12px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        min-width: 320px;
+    }
+
+    .search-input-group:focus-within {
+        background: #ffffff;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-input-group input {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent;
+        font-size: 0.875rem;
+        padding: 8px 10px;
+    }
+
+    /* Main Content Area & Filter Bar */
+    .content-area {
+        margin-top: 1rem;
+    }
+
+    .filter-toolbar {
+        /* background: #81cfab; */
+        /* Deep slate */
+        border-radius: 12px 12px 0 0;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .filter-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-label {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+
+    .dark-date-input {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .dark-date-input:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: #3b82f6 !important;
+    }
+
+    .btn-apply {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-apply:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .print-branding {
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+
+    .print-branding i {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 12px;
+    }
+</style>
+{% endblock %}

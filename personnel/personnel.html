@@ -1,0 +1,619 @@
+{% block content %}
+<style>
+    :root {
+        --cmu-primary: #0c8658;
+        --cmu-secondary: #FFC72C;
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+        background-color: #f4f7f6;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Modern Header */
+    .registry-header {
+        background: linear-gradient(135deg, var(--cmu-primary) 0%, #086342 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 0 0 2rem 2rem;
+        box-shadow: 0 4px 20px rgba(12, 134, 88, 0.2);
+        margin-bottom: -3rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Main Container Card */
+    .personnel-container {
+        background: var(--glass-bg);
+
+        box-shadow: var(--card-shadow);
+        padding: 4rem 2rem 2rem;
+        margin-top: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Table Styling */
+    .table-container {
+
+        overflow: hidden;
+        /* border: 1px solid #eee; */
+    }
+
+    #personnelTable {
+        margin-bottom: 0;
+    }
+
+    #personnelTable thead th {
+        background-color: #f8faf9;
+        color: #555;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        border-bottom: 2px solid #eee;
+    }
+
+    #personnelTable tbody td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        color: #333;
+    }
+
+    /* Profile Image Enhancement */
+    .profile-img {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .profile-img:hover {
+        transform: scale(1.1);
+    }
+
+    /* Button & Badge Customization */
+    .btn-cmu-action {
+        background-color: var(--cmu-primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-cmu-action:hover {
+        background-color: #0a6d47;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(12, 134, 88, 0.3);
+        color: white;
+    }
+
+    .badge-access {
+        padding: 0.5em 1em;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border: none;
+        border-radius: 1.5rem;
+        overflow: hidden;
+    }
+
+    .modal-header-cmu {
+        background: var(--cmu-primary);
+        color: white;
+        border: none;
+    }
+
+    .modal-header-cmu .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e0e0;
+    }
+
+    .form-control:focus {
+        border-color: var(--cmu-primary);
+        box-shadow: 0 0 0 0.25rem rgba(12, 134, 88, 0.1);
+    }
+
+    /* Status Modal Decorations */
+    .status-modal-header-success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+
+    <div class="page-header ">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center justify-content-center mb-4">
+                <div>
+                    <h1 class="header-title mb-1 fw-bold text-success display-6 text-center"> <i
+                            class="bi bi-person-fill-gear me-2"></i>Administrator Registration</h1>
+                    <p class="text-muted small mb-0 text-center">Manage System Administrators and Staff Access Levels.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mb-4">
+            <button class="btn btn-add-admin" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>Add Administrator</span>
+            </button>
+        </div>
+    </div>
+
+    <hr>    
+
+    <!-- Application Header -->
+
+    <!-- <div class="d-flex flex-column align-items-center justify-content-center text-center">
+
+        <h5 class="mb-0 fw-bold text-success"><i class="bi bi-person-circle me-2"></i> Personnel Registry</h5>
+        <p class="mb-0 opacity-75">Secure Access Management and Staff Directory</p>
+    </div>
+    <hr> -->
+    <!-- <div class="registry-header  justify-content-right  flex-wrap gap-3"> -->
+    <!-- <div class="justify-content-right flex-wrap gap-3 mb-3 pt-2">
+
+        <button class="btn btn-light btn-lg px-4 fw-bold text-success  shadow-sm bi-person-plus-fill"
+            data-bs-toggle="modal" data-bs-target="#addModal">
+            Add Administrator
+        </button>
+    </div> -->
+
+    <!-- Main Content -->
+    <div class="personnel-container border border-subtle shadow-sm bg-white rounded-2 p-4">
+
+        <!-- Flashed Messages Container -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show rounded-3 mb-4 shadow-sm" role="alert">
+            <i class="bi bi-info-circle me-2"></i> {{ messages[0][1] }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Personnel Data Table -->
+        <div class="table-responsive table-container ">
+            <table id="personnelTable" class="table table-hover align-middle mb-0">
+                <thead class="bg-success text-white text-uppercase text-center">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 80px;">#</th>
+                        <th class="ps-4">UID</th>
+                        <th>User Identity</th>
+                        <th>Access Category</th>
+                        <th class="text-center">Verified</th>
+                        <th class="text-center pe-4">Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in personnel_list %}
+                    <tr>
+                        <td class="ps-4 text-muted small">{{ loop.index }}</td>
+                        <td class="ps-4 text-muted small">#{{ person.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if person.profile_picture %}
+                                <img src="{{ url_for('static', filename=person.profile_picture.split('static/')[1]) }}"
+                                    alt="{{ person.user_fullName }}" class="profile-img me-3">
+                                {% else %}
+                                <div
+                                    class="profile-img me-3 d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success fw-bold">
+                                    {{ person.user_fullName[0] | upper }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ person.user_fullName }}</div>
+                                    <div class="text-muted small">@{{ person.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if person.level == 1 %}<span
+                                class="badge badge-access bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Administrator</span>{%
+                            endif %}
+                            {% if person.level == 2 %}<span
+                                class="badge badge-access bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25">Research
+                                Lead</span>{% endif %}
+                            {% if person.level == 3 %}<span
+                                class="badge badge-access bg-success bg-opacity-10 text-success border border-success border-opacity-25">Faculty Staff</span>{% endif %}
+                            
+                                {% if person.level == 4 %}<span
+                                class="badge badge-access bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Front Desk</span>{% endif %}
+                            {% if person.level == 5 %}<span
+                                class="badge badge-access bg-info bg-opacity-10 text-info border border-info border-opacity-25">E-Resources</span>{%
+                            endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if person.profile_picture %}
+                            <span class="text-success" title="Profile Set"><i
+                                    class="bi bi-patch-check-fill fs-5"></i></span>
+                            {% else %}
+                            <span class="text-secondary opacity-50" title="Missing Profile"><i
+                                    class="bi bi-dash-circle fs-5"></i></span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 dropdown-toggle"
+                                    type="button" id="dropdownItem{{ person.id }}" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Options
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0"
+                                    aria-labelledby="dropdownItem{{ person.id }}">
+                                    <li>
+                                        <button class="dropdown-item py-2" data-bs-toggle="modal"
+                                            data-bs-target="#editModal{{ person.id }}">
+                                            <i class="bi bi-pencil-square me-2 text-primary"></i> Edit Profile
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item py-2 text-danger"
+                                            onclick="showCustomConfirmModal('Delete Personnel', 'Are you sure you want to permanentely remove {{ person.user_fullName }}? This action cannot be undone.', '{{ url_for('personnel.delete_personnel', id=person.id) }}'); return false;">
+                                            <i class="bi bi-trash3-fill me-2"></i> Remove Record
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modals & Scripts remain logically identical to your source but with styled wrappers -->
+
+
+
+<!-- Modal Enhancements: Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('personnel.personnel') }}"
+            id="addPersonnelForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Administrator</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4 position-relative">
+                        <label class="form-label">Search Identity</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" id="searchUser"
+                                placeholder="Enter name or ID..." required>
+                        </div>
+                        <div id="userSuggestions" class="list-group position-absolute w-100 mt-1 shadow-lg"
+                            style="z-index: 1060; display: none;"></div>
+                    </div>
+
+                    <input type="hidden" name="user_id" id="user_id">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Legal Name</label>
+                            <input type="text" class="form-control bg-light" name="full_name" id="full_name" readonly
+                                required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control bg-light" name="username" id="username" readonly
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Official Position</label>
+                        <input type="text" class="form-control" name="position" placeholder="e.g. IT Administrator"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Permission Group</label>
+                        <select class="form-select" name="access_level" required>
+                            <option value="" disabled selected>Select level...</option>
+                            <option value="1">Level 1 - System Administrator</option>
+                            <option value="2">Level 2 - Research Lead</option>
+                            <option value="3">Level 3 - Faculty Member</option>
+                            <option value="4">Level 4 - Front Desk</option>
+                            <option value="5">Level 5 - E-Resources Catalog</option>
+                        </select>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3">
+                        <label class="form-label">Profile Visualization</label>
+                        <input type="file" class="form-control" name="profile_picture">
+                        <div class="form-text mt-2 small">PNG or JPG recommended (Max 2MB).</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-add-admin px-4">Create Account</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Add Personnel Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('personnel.personnel') }}"
+            id="addPersonnelForm">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header modal-header-cmu bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus-fill me-2"></i> New Administrator Account
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Search User</label>
+                        <input type="text" class="form-control" id="searchUser" placeholder="Enter keyword..." required>
+                        <div id="userSuggestions" class="list-group position-absolute w-100"
+                            style="z-index: 1000; display: none; max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                    <input type="hidden" name="user_id" id="user_id">
+                    <div class="mb-3">
+                        <label class="form-label">Full Legal Name</label>
+                        <input type="text" class="form-control" name="full_name" id="full_name" placeholder="John Doe"
+                            readonly required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" id="username" readonly required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Position</label>
+                        <input type="text" class="form-control" name="position" placeholder="e.g., Staff" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Access Permissions</label>
+                        <select class="form-select" name="access_level" required>
+                            <option value="" disabled selected>Assign a level...</option>
+                            <option value="1">1 - System Administrator</option>
+                            <option value="2">2 - Research Coordinator</option>
+                            <option value="3">3 - Faculty Member</option>
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Profile Visualization</label>
+                        <input type="file" class="form-control" name="profile_picture">
+                        <div class="form-text">Recommended size: 400x400px</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <!-- <button type="button" class="btn btn-light rounded-pill px-4"
+                        data-bs-dismiss="modal">Cancel</button> -->
+                    <button type="submit" class="btn btn-cmu-action px-4 py-2 rounded-pill bg-success text-white">Create
+                        Account</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% for person in personnel_list %}
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal{{ person.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" enctype="multipart/form-data" class="edit-form"
+            action="{{ url_for('personnel.edit_personnel', id=person.id) }}">
+            <div class="modal-content">
+                <div class="modal-header modal-header-cmu">
+                    <h5 class="modal-title"><i class="bi bi-pencil-fill me-2"></i> Update: {{ person.user_fullName }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-control" name="full_name" value="{{ person.user_fullName }}"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Position</label>
+                        <input type="text" class="form-control" name="position" value="{{ person.position }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Authorization Level</label>
+                        <select class="form-select" name="access_level">
+                            <option value="1" {% if person.level==1 %}selected{% endif %}>1 - Admin</option>
+                            <option value="2" {% if person.level==2 %}selected{% endif %}>2 - Research Coordinator
+                            </option>
+                            <option value="3" {% if person.level==3 %}selected{% endif %}>3 - Faculty</option>
+                            <option value="4" {% if person.level==4 %}selected{% endif %}>4 - Front Desk</option>
+                            <option value="5" {% if person.level==5 %}selected{% endif %}>5 - E-Resources</option>
+                        </select>
+                    </div>
+                    <div class="mb-0 text-center bg-light p-3 rounded-3">
+                        <label class="form-label d-block text-start">Change Profile Photo</label>
+                        <input type="file" class="form-control mb-3" name="profile_picture">
+                        {% if person.profile_picture %}
+                        <img src="{{ url_for('static', filename=person.profile_picture.split('static/')[1]) }}"
+                            class="profile-img shadow-sm" style="width: 80px; height: 80px;">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-cmu-action px-4">Update Records</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Reusable UI Components (Status & Confirmation) -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-header border-0 pb-0 justify-content-center">
+                <div class="status-icon-container p-3 rounded-circle mb-2 mt-2">
+                    <i class="bi bi-info-circle-fill fs-1"></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h5 class="fw-bold mb-1">Update Status</h5>
+                <p id="statusModalBody" class="text-muted"></p>
+                <button type="button" class="btn btn-dark w-100 rounded-pill mt-2"
+                    data-bs-dismiss="modal">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-body p-4 text-center">
+                <div class="text-danger mb-3">
+                    <i class="bi bi-exclamation-octagon-fill display-4"></i>
+                </div>
+                <h5 id="confirmTitle" class="fw-bold"></h5>
+                <p id="confirmBody" class="text-muted small mb-4"></p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-100 rounded-pill" data-bs-dismiss="modal">Back</button>
+                    <button type="button" class="btn btn-danger w-100 rounded-pill" id="confirmActionBtn">Yes,
+                        Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // User search functionality
+    $('#searchUser').on('input', function () {
+        var term = $(this).val();
+        var suggestions = $('#userSuggestions');
+        if (term.length > 1) {
+            $.get('/personnel/api/search_users', { term: term }, function (data) {
+                suggestions.empty();
+                if (data.length > 0) {
+                    data.forEach(function (user) {
+                        suggestions.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + user.id + '" data-fullname="' + user.full_name + '" data-username="' + user.username + '">' + user.full_name + ' (' + user.username + ')</a>');
+                    });
+                    suggestions.show();
+                } else {
+                    suggestions.hide();
+                }
+            });
+        } else {
+            suggestions.hide();
+        }
+    });
+
+    $(document).on('click', '#userSuggestions a', function (e) {
+        e.preventDefault();
+        var item = $(this);
+        $('#searchUser').val(item.text());
+        $('#full_name').val(item.data('fullname'));
+        $('#username').val(item.data('username'));
+        $('#user_id').val(item.data('id'));
+        $('#userSuggestions').hide();
+    });
+
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#searchUser, #userSuggestions').length) {
+            $('#userSuggestions').hide();
+        }
+    });
+
+    // Logic remains unchanged as requested to maintain all function
+    function showCustomConfirmModal(title, message, actionUrl) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmBody').textContent = message;
+        const confirmActionBtn = document.getElementById('confirmActionBtn');
+        confirmActionBtn.onclick = function () {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+            document.body.appendChild(form);
+            form.submit();
+        };
+        const confirmModal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+        confirmModal.show();
+    }
+
+    $(document).ready(function () {
+        $('#addPersonnelForm').submit(function (e) {
+            e.preventDefault();
+            handleFormSubmission(this, '#addModal');
+        });
+
+        $('.edit-form').submit(function (e) {
+            e.preventDefault();
+            handleFormSubmission(this, null);
+        });
+
+        function handleFormSubmission(formElement, modalToHideSelector) {
+            var formData = new FormData(formElement);
+            var form = $(formElement);
+
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    var statusModalEl = $('#statusModal');
+                    var statusBody = $('#statusModalBody');
+
+                    statusBody.text(response.message);
+
+                    if (modalToHideSelector) {
+                        $(modalToHideSelector).modal('hide');
+                    } else {
+                        form.closest('.modal').modal('hide');
+                    }
+
+                    statusModalEl.modal('show');
+
+                    if (response.success) {
+                        if (modalToHideSelector === '#addModal') formElement.reset();
+                        setTimeout(() => location.reload(), 1500);
+                    }
+                },
+                error: function (xhr) {
+                    $('#statusModalBody').text('A network error occurred. Please try again.');
+                    $('#statusModal').modal('show');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

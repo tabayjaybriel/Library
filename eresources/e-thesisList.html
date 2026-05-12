@@ -1,0 +1,259 @@
+{%block content%}
+
+<div class="col-lg-12 mt-4 shadow-lg border rounded-4 p-4 bg-white">
+
+    <!-- Resource List  loping start diri -->
+    <table id="listE-Resources" class="table table-borderless w-100">
+        <thead class="d-none bg-success text-white">
+            <tr>
+                <th>Resource Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for eResource in myResourcesList %}
+            <tr>
+                <td class="p-0 pb-3 border-0">
+                    <div class="list-group-item list-group-item-action border rounded-3 p-3 academic-card">
+                        <div class="row align-items-center g-3">
+                            <div class="col-auto d-flex align-items-center gap-3">
+                                <span class="text-muted fw-bold small">{{ loop.index }}</span>
+                                <div class="text-warning stat-badge border border-success p-1 rounded align-items-center d-flex justify-content-center" style="width: auto; height: auto;">
+                                    <i class="bi bi-journal-text fs-3 "></i>
+                                </div>
+                            </div>
+
+                            <!-- Resource Info -->
+                            <div class="col">
+                                <p class="mb-1 fw-bold resource-title text-uppercase">{{eResource.title}}</p>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <span class="text-muted text-md"><i class="bi bi-person-bounding-box"></i>
+                                        {{eResource.last_name}}, {{eResource.first_name}}</span>
+                                    <span class="text-muted text-md">
+                                        <i class="bi bi-calendar3"></i> {{eResource.copyright_yy}} </span>
+                                </div>
+
+
+                                <!-- Stats Section -->
+                                <div class="col-md-auto">
+                                    <div class="d-flex gap-2">
+                                        <div class="stat-badge text-center border rounded">
+                                            <div class="small text-uppercase text-muted" style="font-size: 0.65rem;">
+                                                Views</div>
+                                            <div class="view-count fw-bold text-primary"
+                                                data-thesis-id="{{ eResource.id }}">{{ eResource.view_count }}</div>
+                                        </div>
+                                        <div class="stat-badge text-center border rounded">
+                                            <div class="small text-uppercase text-muted" style="font-size: 0.65rem;">
+                                                Downloads
+                                            </div>
+                                            <div class="download-count fw-bold text-success"
+                                                data-thesis-id="{{ eResource.id }}">{{ eResource.download_count }}
+                                            </div>
+                                        </div>
+
+                                        <div class="stat-badge text-center border rounded">
+                                            <div class="small text-uppercase text-muted" style="font-size: 0.65rem;">
+                                                Cite
+                                            </div>
+                                            <div class="download-count fw-bold text-success"
+                                                data-thesis-id="{{ eResource.id }}">{{ eResource.download_count }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+
+                            </div>
+
+
+                            <!-- Action Buttons: Changed to links for direct navigation -->
+                            <div class="col-auto">
+                                <div class="btn-group btn-outline-success" role="group" aria-label="Action Buttons">
+                                    <!-- <button type="button" class="btn btn-outline-secondary btn-sm view-btn"
+                                        data-bs-toggle="modal" data-bs-target="#thesisDetailModal{{ eResource.id }}"
+                                        data-thesis-id="{{ eResource.id }}" data-resource-type="thesis"
+                                        data-download-url="{{ url_for('auth.download_thesis', thesis_id=eResource.id) }}">
+                                        <i class="bi bi-eye"></i> View
+                                    </button> -->
+
+                                    <button type="button" class="btn btn-outline-secondary btn-sm view-btn"
+                                        data-bs-toggle="modal" data-bs-target="#viewModal"
+                                        data-thesis-id="{{ eResource.id }}" data-resource-type="thesis"
+                                        data-pdf-stream="{{ url_for('listofthesis.get_preview_pdf', thesis_id=eResource.id) }}"
+                                        data-preview-url="{{ url_for('listofthesis.preview_thesis', thesis_id=eResource.id) }}">
+                                        <i class="bi bi-eye text-primary"></i> View
+                                    </button>
+
+
+                                    <!-- data-download-url="{{ url_for('auth.view_thesis', thesis_id=eResource.id) }}" -->
+
+                                    <!-- <a href="{{ url_for('auth.download_thesis', thesis_id=eResource.id) }}"
+                                        class="btn btn-outline-secondary btn-sm" title="Download">
+                                        <i class="bi bi-download px-1"></i> Download
+                                    </a> -->
+
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#editModal"
+                                        data-thesis-id="{{ eResource.id }}">
+                                        <i class="bi bi-pencil-square text-primary"></i> Cite
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Resource List  loping end diri -->
+
+</div>
+
+<!-- </div> -->
+
+<!-- View Modal - ACTIVE REUSABLE MODAL -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 shadow-lg">
+            <div class="modal-header bg-success text-white rounded-top-4">
+                <h5 class="modal-title text-warning"><i class="bi bi-mortarboard-fill me-2"></i>Resource Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <h5 class="modal-title text-uppercase fs-5 text-center bi bi-journal-text  me-2"  id="modalTitle"></h5>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <p class="mb-1 text-muted"><i class="bi bi-person-circle me-2 text-primary"></i><strong>Author: <span
+                                    id="author"></span></strong>
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <p class="mb-1 text-muted"><i class="bi bi-calendar-event me-2 text-primary"></i><strong>Copyright
+                                Year:</strong> <span id="copyrightYear"></span></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1 text-muted"><i class="bi bi-mortarboard-fill me-2 text-primary"></i><strong>Course /
+                            College:</strong> <span id="courseCollege"></span></p>
+                </div>
+
+                <hr>
+                <div class="mb-3">
+                    <p class="mb-1 text-muted"><i class="bi bi-file-earmark-richtext me-2 text-primary"></i><strong>Abstract /
+                            Description:</strong>
+                    </p>
+                    <div id="modalAbstract" class="p-3 bg-light rounded-3 border"
+                        style="max-height: 250px; overflow-y: auto;">
+                    </div>
+                </div>
+
+                <div class="mb-3" id="previewContainer" style="display: none;">
+                    <p class="mb-1 text-muted">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>
+                        <strong>Preview:</strong>
+                    </p>
+
+                    <iframe id="pdfPreview" width="100%" height="400px" class="border rounded">
+                    </iframe>
+                </div>
+
+                <div class="mt-3 p-3 d-flex gap-4 justify-content-start">
+                    <p class="mb-0"><strong><i class="bi bi-eye text-primary"></i>: <span id="modalViewCount">0 </strong></span></p>
+                    <p class="mb-0"><strong><i class="bi bi-download text-primary"></i>: <span id="modalDownloadCount">0 </strong></span></p>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+
+                <button class="btn btn-secondary">Cite</button>
+
+                <a href="javascript:void(0)" id="modalPreviewBtn" class="btn btn-success px-3 ajax-link" data-bs-dismiss="modal" data-target="ajax-content-area">
+                    <i class="bi bi-book-half"></i> Continue Reading
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+
+<script>
+    // Script executes immediately when injected via AJAX
+    (function() {
+    let table;
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        table = $('#listE-Resources').DataTable({
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+            ordering: false,
+            responsive: true,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search research titles or authors...",
+                info: "Displaying scholarly work _START_ to _END_ of _TOTAL_"
+            }
+        });
+
+        // Bind custom search input to DataTable
+        $('#resourceSearch').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+    }
+    /* ===============================
+       MODAL: LOAD DETAILS
+       =============================== */
+    const viewModal = document.getElementById('viewModal');
+    const continueBtn = document.getElementById('modalPreviewBtn');
+
+    if (viewModal) {
+        viewModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
+            const id = button.dataset.thesisId;
+            const type = button.dataset.resourceType || 'thesis';
+            const previewUrl = button.dataset.previewUrl;
+
+            viewModal.querySelector('#modalTitle').innerText = 'Loading...';
+            viewModal.querySelector('#modalAbstract').textContent = 'Please wait...';
+            continueBtn.style.display = 'inline-block'; 
+
+            fetch(`/eresources/get_details/${type}/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    viewModal.querySelector('#author').textContent =
+                        `${data.last_name}, ${data.first_name}`;
+                    viewModal.querySelector('#copyrightYear').textContent =
+                        data.copyright_year || 'N/A';
+                    viewModal.querySelector('#courseCollege').textContent =
+                        `${data.course_name} — ${data.college_name}`;
+                    viewModal.querySelector('#modalTitle').innerText =
+                        data.title || 'Untitled';
+                    viewModal.querySelector('#modalAbstract').textContent =
+                        data.abstract || 'No description available.';
+                    viewModal.querySelector('#modalViewCount').textContent =
+                        data.view_count || 0;
+                    viewModal.querySelector('#modalDownloadCount').textContent =
+                        data.download_count || 0;
+
+                    // Set the URL for admin.js AJAX handler
+                    continueBtn.setAttribute('data-url', previewUrl);
+                    continueBtn.onclick = null;
+                })
+                .catch(err => console.error(err));
+        });
+    }
+    })();
+</script>
+
+{%endblock%}

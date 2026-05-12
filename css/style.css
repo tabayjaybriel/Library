@@ -1,0 +1,77 @@
+ /* CMU Branding Colors */
+        :root {
+            --cmu-green: #004d40; /* Deep Elegant Teal-Green */
+            --cmu-gold: #FFD700;  /* Bright Gold/Yellow Accent */
+            --font-family-sans-serif: 'Inter', sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: var(--font-family-sans-serif);
+            background-color: #f8f9fa; /* Light background for contrast */
+        }
+
+        .main-content-area {
+            min-height: calc(100vh - 80px); /* Adjust based on navbar height */
+        }
+
+        /* Custom Navbar styling */
+        .navbar-cmu-green {
+            background-color: var(--cmu-green) !important;
+            height: 80px;
+        }
+        
+        /* CMU Gold Button */
+        .btn-cmu-gold {
+            background-color: var(--cmu-gold);
+            border-color: var(--cmu-green);
+            color: var(--cmu-green);
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem; /* Slightly rounded corners */
+        }
+
+        .btn-cmu-gold:hover {
+            background-color: var(--cmu-green);
+            color: var(--cmu-gold);
+            border-color: var(--cmu-gold);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Text and Link Colors */
+        .text-cmu-green {
+            color: var(--cmu-green) !important;
+        }
+        .text-cmu-gold {
+            color: var(--cmu-gold) !important;
+        }
+
+        /* Card and Form Styling */
+        .card-elegant {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 1rem;
+            border: none;
+            overflow: hidden; /* For the split layout */
+        }
+
+        .form-control:focus {
+            border-color: var(--cmu-green);
+            box-shadow: 0 0 0 0.25rem rgba(0, 77, 64, 0.25); /* Lighter green glow */
+        }
+
+        /* Branding Panel Styling (Left side) */
+        .branding-panel {
+            background-color: var(--cmu-green);
+            color: white;
+            padding: 3rem;
+            border-radius: 1rem 0 0 1rem; /* Only top-left and bottom-left on desktop */
+        }
+
+        /* Responsive adjustments for the branding panel on small screens */
+        @media (max-width: 991.98px) {
+            .branding-panel {
+                border-radius: 1rem 1rem 0 0; /* Rounded top on mobile */
+            }
+        }

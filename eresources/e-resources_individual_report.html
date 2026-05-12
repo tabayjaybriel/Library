@@ -1,0 +1,291 @@
+{% block content %}
+
+<div class="fluid-container bg-body-secondary p-2">
+
+    <div class="d-flex justify-content-center py-2">
+        <p class="fw-bold text-success display-6 mb-1 fs-3">E-Resources Report</p>
+
+    </div>
+
+    <div class="card bg-white">
+        <div class="d-flex justify-content-end align-items-end p-3">
+            <span class="badge bg-success">{{ eresource.resource_type }}</span>
+        </div>
+
+        <div class="Header d-flex justify-content-center align-items-start border border-subtle p-3">
+            <!-- Resource Info -->
+            <div class="text-muted">
+                <p class="fw-bold fs-5 mb-1 text-center"><i class="bi bi-journals"></i>{{ eresource.title }}</p>
+                <i class="bi bi-person-circle fs-5 text-success mb-1 text-center"></i> {% if eresource.author %}Author:
+                {{ eresource.author }}{% endif %}
+                <hr>
+
+                <p class="text-muted small text-uppercase letter-spacing-1">
+                    {% if eresource.year %}Published: <i class="bi bi-calendar"></i> {{ eresource.year }}{% endif %}
+
+                    {% if eresource.subject %} | Subject: <i class="bi bi-bookmark-fill"></i> {{ eresource.subject }}{%
+                    endif %}
+
+                    {% if eresource.publisher %} | Publisher: <i class="bi bi-journal-richtext"></i> {{
+                    eresource.publisher }}{% endif %}
+
+                    {% if eresource.issn_isbn %} | ISBN: <i class="bi bi-bookmark"></i> {{ eresource.issn_isbn }}{%
+                    endif %}
+
+                    {% if eresource.doi %} | DOI: <i class="bi bi-link-45deg"></i> {{ eresource.doi }}{% endif %}
+                </p>
+            </div>
+
+
+        </div>
+
+        <!-- Statistics Cards -->
+        <div
+            class="row g-4 mb-3 row-cols-1 row-cols-md-2 row-cols-xl-5 p-3 d-flex justify-content-center align-items-center">
+
+            <div class="col">
+                <div class="card border-1 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <i class="bi bi-eye fs-2 text-success"></i>
+                        <div>
+                            <h6 class="text-muted small fw-bold mb-1 text-uppercase">Total Views</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="totalViews">{{ total_views }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card border-1 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <i class="bi bi-download fs-2 text-success"></i>
+                        <div>
+                            <h6 class="text-muted small fw-bold mb-1 text-uppercase">Total Downloads</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="totalDownloads">{{ total_downloads }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card border-1 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <i class="bi bi-quote fs-2 text-success"></i>
+                        <div>
+                            <h6 class="text-muted small fw-bold mb-1 text-uppercase">Citations</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="totalCitations">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card border-1 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <i class="bi bi-star fs-2 text-success"></i>
+                        <div>
+                            <h6 class="text-muted small fw-bold mb-1 text-uppercase">Average Rating</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="avgRating">0/5</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+        <div class="d-flex justify-content-between align-items-center p-3 border-top border-subtle">
+            
+            <!-- Date Filter -->
+            <div class="col-12 d-flex justify-content-start align-items-center p-2 gap-2">
+                <div class="col-auto">
+                    <label class="form-label fw-semibold mb-0 me-2">Select Date Range:</label>
+                </div>
+                <div class="col-auto">
+                    <input type="date" class="form-control form-control-sm me-2" id="dateFrom">
+                </div>
+                <div class="col-auto">
+                    <input type="date" class="form-control form-control-sm me-2" id="dateto">
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-success btn-sm me-2" id="filterBtn">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="resetBtn">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-3">
+            <p class="fw-bold text-success mb-0">Activity Log</p>
+            <table class="table table-hover table-striped py-4" id="eresources_reportPerEresources">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Activity Type</th>
+                        <th>Date & Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded via JavaScript -->
+                </tbody>
+            </table>
+            <div id="noDataMessage" class="alert alert-info text-center" style="display: none;">
+                No activities found for the selected date range.
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const resourceId = {{ eresource.id }};
+    let dataTable = null;
+
+    // Initialize DataTable
+    function initializeDataTable() {
+        if (dataTable) {
+            dataTable.destroy();
+        }
+
+        dataTable = new DataTable('#eresources_reportPerEresources', {
+            paging: true,
+            pageLength: 10,
+            searching: true,
+            ordering: true,
+            responsive: true,
+            columnDefs: [
+                { targets: 0, orderable: false, searchable: false }
+            ],
+            language: {
+                emptyTable: "No activities found",
+                search: "Search activities:"
+            }
+        });
+    }
+
+    // Load activities from API
+    function loadActivities(startDate = null, endDate = null) {
+        let url = `/eresources/api/eresource-activities/${resourceId}`;
+        const params = new URLSearchParams();
+
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+
+        document.getElementById('noDataMessage').style.display = 'none';
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load activities');
+                }
+                return response.json();
+            })
+            .then(data => {
+                populateTable(data);
+            })
+            .catch(error => {
+                console.error('Error loading activities:', error);
+                document.getElementById('noDataMessage').textContent = 'Error loading activities';
+                document.getElementById('noDataMessage').style.display = 'block';
+            });
+    }
+
+    // Populate DataTable with data
+    function populateTable(activities) {
+        const tbody = document.querySelector('#eresources_reportPerEresources tbody');
+        tbody.innerHTML = '';
+
+        if (activities.length === 0) {
+            document.getElementById('noDataMessage').style.display = 'block';
+            if (dataTable) {
+                dataTable.clear().draw();
+            }
+            return;
+        }
+
+        document.getElementById('noDataMessage').style.display = 'none';
+
+        activities.forEach(activity => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${activity.index}</td>
+                <td>${activity.user}</td>
+                <td><span class="badge bg-${activity.activity_type === 'VIEW' ? 'info' : 'warning'}">${activity.activity_type}</span></td>
+                <td>${activity.activity_date}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" title="View Details">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        if (dataTable) {
+            dataTable.clear();
+            activities.forEach(activity => {
+                dataTable.row.add([
+                    activity.index,
+                    activity.user,
+                    `<span class="badge bg-${activity.activity_type === 'VIEW' ? 'info' : 'warning'}">${activity.activity_type}</span>`,
+                    activity.activity_date,
+                    '<button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>'
+                ]);
+            });
+            dataTable.draw();
+        } else {
+            initializeDataTable();
+        }
+    }
+
+    // Filter button click handler
+    document.getElementById('filterBtn').addEventListener('click', function () {
+        const startDate = document.getElementById('dateFrom').value;
+        const endDate = document.getElementById('dateto').value;
+
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates');
+            return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('Start date must be before end date');
+            return;
+        }
+
+        loadActivities(startDate, endDate);
+    });
+
+    // Reset button click handler
+    document.getElementById('resetBtn').addEventListener('click', function () {
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateto').value = '';
+        loadActivities();
+    });
+
+    initializeDataTable();
+    loadActivities();
+});
+</script>
+
+{% endblock %}

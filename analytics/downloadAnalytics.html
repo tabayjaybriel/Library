@@ -1,0 +1,33 @@
+{% block content %}
+
+<div class="card-header">
+    <div class="card-title d-flex justify-content-between align-items-center">Top Downloads </div>
+</div>
+<div class="card-body">
+    <table class="table table-striped table-hover" id="tableTopDownloadedThesis">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Downloads</th>
+            </tr>
+        </thead>
+
+        <tbody> {% for title, downloads in top_downloads %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ title }}</td>
+                <td>{{ downloads }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+</div>
+
+
+
+{% endblock %}

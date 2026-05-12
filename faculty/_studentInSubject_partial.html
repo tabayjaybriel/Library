@@ -1,0 +1,157 @@
+{% block content%}
+
+<div class="p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <h4 class="mb-0" id="subjectCourseDescription">List of Students: <strong>{{ subject.courseDescription }}</strong></h4>
+        
+        
+        <a href="{{ url_for('auth.facultyPortal') }}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-house-door-fill me-1"></i>
+            </a>
+    </div>
+    
+
+
+    <div class="row mb-3">
+        <div class="col-md-4 mb-2">
+            <select id="statusFilter" class="form-select form-select-sm" aria-label="Filter thesis status">
+                <option value="">Filter by Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Denied">Denied</option>
+            </select>
+        </div>
+        <div class="col-md-8 text-end mb-2">
+            <button id="exportToExcelBtn" class="btn btn-primary-outline btn-sm me-1" type="button">
+                <i class="bi bi-file-earmark-excel-fill me-1"></i> Export
+            </button>
+            <button id="printBtn" class="btn btn-primary-outline btn-sm" type="button">
+                <i class="bi bi-printer-fill me-1"></i> Print
+            </button>
+        </div>
+    </div>
+
+    {% if listofStudentinSubject %}
+    
+        <table id="studentinSubject" class="table table-hover table-sm align-middle w-100 p-2">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Thesis Title</th>
+                    <th>Status & Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in listofStudentinSubject %}
+                {% set status_text = 'Pending' %}
+                {% if item.thesis_details.teacherStatus == 2 %}
+                    {% set status_text = 'Approved' %}
+                {% elif item.thesis_details.teacherStatus == 0 %}
+                    {% set status_text = 'Denied' %}
+                {% endif %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ item.student_details.user_fullName }}</td>
+                    <td>{{ item.thesis_details.title }}</td>
+                    <td>
+                        {% if status_text == "Approved" %}
+                        <span class="bg-success py-2 px-3 fw-bold">
+                            <i class="bi bi-check-circle-fill me-1"></i> Approved
+                        </span>
+                        {% elif status_text == "Denied" %}
+                        <span class="bg-danger py-2 px-3 fw-bold">
+                            <i class="bi bi-x-octagon-fill me-1"></i> Denied
+                        </span>
+                        {% else %}
+                        <!-- Dropdown for Pending Actions -->
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                id="actionDropdown{{ item.thesis_details.id }}" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu text-start"
+                                aria-labelledby="actionDropdown{{ item.thesis_details.id }}">
+                                <!-- Approve -->
+                                <li>
+                                    <button type="button" class="dropdown-item text-success fw-semibold"
+                                        data-bs-toggle="modal" data-bs-target="#approveThesisModal"
+                                        data-thesis-id="{{ item.thesis_details.id }}"
+                                        data-thesis-title="{{ item.thesis_details.title }}">
+                                        <i class="bi bi-check-lg me-2"></i> Approve
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <!-- Deny -->
+                                <li>
+                                    <button type="button" class="dropdown-item text-danger fw-semibold"
+                                        data-bs-toggle="modal" data-bs-target="#denyThesisModal"
+                                        data-thesis-id="{{ item.thesis_details.id }}"
+                                        data-thesis-title="{{ item.thesis_details.title }}">
+                                        <i class="bi bi-x-lg me-2"></i> Deny
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+
+    {% else %}
+    <div class="alert alert-info">No students available for this subject.</div>
+    {% endif %}
+</div>
+
+<!-- ✅ Approve Thesis Modal -->
+<div class="modal fade" id="approveThesisModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #066b0b !important;">
+                <h5 class="modal-title">Confirm Approval</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to <strong>approve</strong> the following thesis title?</p>
+                <p class="mb-0"><b>Thesis ID:</b> <span id="approveId" class="fw-bold"></span></p>
+                <p class="mb-0"><b>Title:</b> <span id="approveTitle" class="fst-italic"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="approveForm" method="post" action="{{ url_for('faculty.approve_thesis') }}">
+                    <input type="hidden" name="thesis_id" id="approveThesisIdInput">
+                    <button type="submit" class="btn btn-success">Yes, Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Deny Thesis Modal -->
+<div class="modal fade" id="denyThesisModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #dc3545 !important;">
+                <h5 class="modal-title">Confirm Denial</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to <strong>deny</strong> The following thesis title? The student will be notified.</p>
+                <p class="mb-0"><b>Thesis ID:</b> <span id="denyId" class="fw-bold"></span></p>
+                <p class="mb-0"><b>Title:</b> <span id="denyTitle" class="fst-italic"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="denyForm" method="post" action="{{ url_for('faculty.deny_thesis') }}">
+                    <input type="hidden" name="thesis_id" id="denyThesisIdInput">
+                    <button type="submit" class="btn btn-danger">Yes, Deny</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

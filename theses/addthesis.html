@@ -1,0 +1,194 @@
+{% extends "header/base.html" %}
+
+{% block content %}
+<div class="container-fluid p-2">
+
+    <div class="col-lg-12 d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-bold fs-2">Submission of Final Thesis and PDF Files</span>
+
+        <a class="btn btn-outline-primary" href="{{ url_for('auth.profile') }}"><i class="bi bi-house me-2"></i></a>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+        
+        <div class="container p-3">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8 bg-white p-2  overflow-hidden border">
+                    <!-- Header -->
+                    <div class="bg-success text-white p-4 text-center">
+                        <i class="bi bi-info-circle-fill fs-1 mb-2"></i>
+                        <h2 class="h4 mb-0">Submission of Thesis and PDF File</h2>
+                        <p class="small mb-0 opacity-75">Library Repository Information System</p>
+                    </div>
+
+
+
+                    <div class="p-4 p-md-5">
+                        <form method="post" action="{{ url_for('listofthesis.submitThesisFile') }}"
+                            enctype="multipart/form-data" class="row g-4">
+
+                            <!-- Name Row -->
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label fw-bold">Last Name</label>
+                                <input type="text" class="form-control" name="lastName" id="lastName"
+                                    placeholder="Enter Last Name" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label fw-bold">First Name</label>
+                                <input type="text" class="form-control" name="firstName" id="firstName"
+                                    placeholder="Enter First Name" required>
+                            </div>
+
+                            <!-- Title Field (Readonly) -->
+                            <div class="col-12">
+                                <label for="title" class="form-label fw-bold">Thesis Title</label>
+                                <input type="text" class="form-control bg-light" name="title" id="title"
+                                    value="{{ pre_title }}" required readonly>
+                            </div>
+
+                            <!-- Abstract -->
+                            <div class="col-12">
+                                <label for="abstract" class="form-label fw-bold">Abstract</label>
+                                <textarea class="form-control" name="abstract" id="abstract" rows="5"
+                                    placeholder="Paste your thesis abstract here..." required></textarea>
+                            </div>
+
+                            <!-- Research Number -->
+                            <div class="col-12">
+                                <label for="researchNumber" class="form-label fw-bold">Research Number</label>
+                                <!-- <input type="text" class="form-control bg-light" name="researchNumber" id="researchNumber" value="{{ pre_research_number }}" required> -->
+                                <input type="text" class="form-control bg-light" name="researchNumber"
+                                    id="researchNumber" required>
+                            </div>
+
+                            <!-- College Dropdown (Standard Select) -->
+                            <div class="col-md-6">
+                                <label for="selectCollege" class="form-label fw-bold">College</label>
+                                <select name="selectCollege" id="selectCollege" class="form-select" required>
+                                    <option value="">Select College</option>
+                                    {% for college in colleges %}
+                                    <option value="{{ college.id }}">{{ college.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Searchable Course Field -->
+                            <div class="col-md-6">
+                                <label for="courseInput" class="form-label fw-bold">Course (Searchable)</label>
+                                <div class="position-relative">
+                                    <input type="text" name="selectCourse" id="courseInput" class="form-control"
+                                        placeholder="Type to search course..." list="courseOptions" required disabled>
+                                    <datalist id="courseOptions">
+                                        <!-- Options populated via AJAX -->
+                                    </datalist>
+
+                                    <!-- Visual indicator for AJAX loading -->
+                                    <div id="courseLoader"
+                                        class="spinner-border spinner-border-sm text-success d-none position-absolute"
+                                        style="right: 10px; top: 10px;" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <div id="courseFeedback" class="form-text small">Please select a college first.</div>
+                            </div>
+
+                            <!-- Year and File -->
+                            <div class="col-md-6">
+                                <label for="CopyYY" class="form-label fw-bold">Year Graduated</label>
+                                <input type="number" class="form-control" name="CopyYY" id="CopyYY"
+                                    placeholder="e.g. 2024" required min="1900" max="2100">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="file" class="form-label fw-bold">Upload PDF File</label>
+                                <input type="file" class="form-control" name="file" id="file" accept=".pdf" required>
+                            </div>
+
+                            <div class="col-12">
+                                <hr class="my-4">
+                                <div class="form-check mb-4">
+                                    <input type="checkbox" class="form-check-input" id="consent" name="consent"
+                                        required>
+                                    <label class="form-check-label small" for="consent">
+                                        I consent to the collection and use of my data as per the
+                                        <a href="/privacy-policy" target="_blank" class="text-decoration-none">Privacy
+                                            Policy</a>.
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg w-100 py-3">
+                                    <i class="bi bi-cloud-arrow-up-fill me-2"></i> Submit Final Thesis
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const selectCollege = document.getElementById('selectCollege');
+        const courseInput = document.getElementById('courseInput');
+        const courseOptions = document.getElementById('courseOptions');
+        const courseLoader = document.getElementById('courseLoader');
+        const courseFeedback = document.getElementById('courseFeedback');
+
+        if (selectCollege && courseInput) {
+            selectCollege.addEventListener('change', function () {
+                const collegeId = this.value;
+
+                // Clear previous results
+                courseInput.value = '';
+                courseOptions.innerHTML = '';
+
+                if (!collegeId) {
+                    courseInput.disabled = true;
+                    courseFeedback.textContent = "Please select a college first.";
+                    return;
+                }
+
+                // UI Feedback: Loading
+                courseInput.disabled = true;
+                courseInput.placeholder = "Loading courses...";
+                if (courseLoader) courseLoader.classList.remove('d-none');
+
+                // Fetch URL (Updated to handle potential Blueprint prefix)
+                const url = "{{ url_for('listofthesis.get_courses') }}?college_id=" + collegeId;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to load courses');
+                        return response.json();
+                    })
+                    .then(courses => {
+                        if (courses.length > 0) {
+                            courses.forEach(course => {
+                                const option = document.createElement('option');
+                                // Datalist uses 'value' for what's inserted and shown
+                                option.value = course.courseName || course.name;
+                                courseOptions.appendChild(option);
+                            });
+
+                            courseInput.disabled = false;
+                            courseInput.placeholder = "Type to search course...";
+                            courseFeedback.textContent = `Found ${courses.length} courses for this college.`;
+                        } else {
+                            courseInput.placeholder = "No courses available";
+                            courseFeedback.textContent = "No courses found for the selected college.";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        courseFeedback.textContent = "Error loading courses. Please try again.";
+                    })
+                    .finally(() => {
+                        if (courseLoader) courseLoader.classList.add('d-none');
+                    });
+            });
+        }
+    })();
+</script>
+{% endblock %}
